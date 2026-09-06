@@ -1,0 +1,29 @@
+name: Supabase Keepalive
+
+# Ping the Supabase project every 3 days so the free tier doesn't pause
+# after 7 days of inactivity.
+on:
+  schedule:
+    - cron: '0 3 */3 * *'   # 03:00 UTC every 3 days
+  workflow_dispatch:        # allow running manually from the Actions tab
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase REST endpoint
+        run: |
+          echo "Pinging Supabase to keep project active…"
+          HTTP_CODE=$(curl -s -o /tmp/response.txt -w "%{http_code}" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/cards?select=id&limit=1" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}")
+          echo "HTTP status: $HTTP_CODE"
+          cat /tmp/response.txt
+          # 200 = OK with data. 401/403 = auth issue. 5xx = server error.
+          # Even 401 counts as activity (proves DB responded), so only fail on 5xx.
+          if [ "$HTTP_CODE" -ge 500 ]; then
+            echo "::error::Supabase returned server error"
+            exit 1
+          fi
+          echo "✓ Supabase project is alive"
