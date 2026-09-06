@@ -1,277 +1,383 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FRM Study Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
   /* ---- Gates (config missing / auth) ---- */
-  .gate{position:fixed;inset:0;background:#0d131c;display:flex;align-items:center;justify-content:center;
-    z-index:100;padding:20px}
-  .gate-card{background:#ffffff;border-radius:16px;max-width:400px;width:100%;padding:30px 28px;
-    box-shadow:0 20px 60px rgba(0,0,0,.35)}
-  .gate-logo{display:flex;align-items:center;gap:10px;margin-bottom:18px}
-  .gate-logo .mk{width:32px;height:32px;border-radius:9px;background:linear-gradient(150deg,#0e7c7b,#12a6a4);
-    display:grid;place-items:center;color:#fff;font-weight:800}
-  .gate-logo b{font-size:16px}
-  .gate h3{font-size:16px;margin-bottom:4px}
-  .gate p.d{font-size:12.8px;color:#5f6b7e;margin:0 0 18px}
-  .gate label{display:block;font-size:12.5px;font-weight:600;margin:0 0 5px}
-  .gate input{width:100%;border:1px solid #e2e7ee;border-radius:9px;padding:10px 12px;font-size:14px;margin-bottom:12px;font-family:inherit}
-  .gate input:focus{outline:2px solid #e2f1f0;border-color:#0e7c7b}
-  .gate .btn{width:100%;border:0;background:#0e7c7b;color:#fff;font-weight:700;font-size:13.5px;
-    padding:11px;border-radius:9px;cursor:pointer;margin-top:2px}
-  .gate .btn:hover{background:#0a5f5e}
-  .gate .switch{text-align:center;margin-top:14px;font-size:12.5px;color:#5f6b7e}
-  .gate .switch a{color:#0e7c7b;font-weight:600;cursor:pointer;text-decoration:none}
-  .gate .err{background:#fae7e2;color:#8c3a24;font-size:12px;padding:9px 11px;border-radius:8px;margin-bottom:12px;display:none}
-  .gate .ok{background:#e2f2ec;color:#1f6b4d;font-size:12px;padding:9px 11px;border-radius:8px;margin-bottom:12px;display:none}
-  .gate code{background:#f1f4f8;padding:1px 5px;border-radius:4px;font-size:11.5px}
-  .gate .steps{font-size:12px;color:#5f6b7e;line-height:1.7;background:#f6f8fb;border-radius:9px;padding:12px 14px;margin-top:14px}
-  .rail-user{display:flex;align-items:center;gap:8px;padding:8px 10px;margin-top:8px;border-top:1px solid #26313e;padding-top:12px}
-  .rail-user .av{width:24px;height:24px;border-radius:50%;background:#0e7c7b;color:#fff;display:grid;place-items:center;font-size:11px;font-weight:800;flex:0 0 auto}
-  .rail-user .em{font-size:11px;color:#aeb9c7;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
-  .rail-user button{border:0;background:transparent;color:#7c8898;cursor:pointer;font-size:14px;padding:2px}
-  .rail-user button:hover{color:#fff}
+  .gate{position:fixed;inset:0;z-index:100;padding:20px;display:flex;align-items:center;justify-content:center;
+    background:
+      radial-gradient(1200px 800px at 20% 0%, rgba(124,58,237,.35), transparent 60%),
+      radial-gradient(1000px 700px at 80% 100%, rgba(79,70,229,.35), transparent 60%),
+      linear-gradient(180deg,#0a0f1e 0%,#0f1729 100%)}
+  .gate-card{background:#ffffff;border-radius:20px;max-width:420px;width:100%;padding:36px 32px;
+    box-shadow:0 30px 80px rgba(0,0,0,.5), 0 2px 4px rgba(0,0,0,.1);
+    animation:cardIn .4s cubic-bezier(.2,.9,.35,1)}
+  @keyframes cardIn{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
+  .gate-logo{display:flex;align-items:center;gap:11px;margin-bottom:22px}
+  .gate-logo .mk{width:36px;height:36px;border-radius:10px;
+    background:linear-gradient(135deg,#4f46e5,#7c3aed);
+    display:grid;place-items:center;color:#fff;font-weight:800;font-size:17px;
+    box-shadow:0 4px 14px rgba(79,70,229,.4), inset 0 1px 0 rgba(255,255,255,.2)}
+  .gate-logo b{font-size:16px;letter-spacing:-.01em}
+  .gate h3{font-size:18px;margin-bottom:5px;letter-spacing:-.02em}
+  .gate p.d{font-size:13px;color:#64748b;margin:0 0 20px;line-height:1.55}
+  .gate label{display:block;font-size:12.5px;font-weight:600;margin:0 0 6px;color:#334155}
+  .gate input{width:100%;border:1.5px solid #e2e8f0;border-radius:10px;padding:11px 14px;font-size:14px;
+    margin-bottom:14px;font-family:inherit;transition:.15s;background:#fafbfd}
+  .gate input:focus{outline:none;border-color:#4f46e5;background:#fff;box-shadow:0 0 0 3px rgba(79,70,229,.12)}
+  .gate .btn{width:100%;border:0;background:linear-gradient(135deg,#4f46e5,#6366f1);color:#fff;
+    font-weight:700;font-size:14px;padding:12px;border-radius:10px;cursor:pointer;margin-top:4px;
+    box-shadow:0 4px 14px rgba(79,70,229,.35);transition:.15s;font-family:inherit}
+  .gate .btn:hover{background:linear-gradient(135deg,#4338ca,#4f46e5);
+    box-shadow:0 6px 20px rgba(79,70,229,.45);transform:translateY(-1px)}
+  .gate .btn:disabled{opacity:.6;cursor:default;transform:none}
+  .gate .switch{text-align:center;margin-top:16px;font-size:12.5px;color:#64748b}
+  .gate .switch a{color:#4f46e5;font-weight:600;cursor:pointer;text-decoration:none}
+  .gate .switch a:hover{text-decoration:underline}
+  .gate .err{background:#fee2e2;color:#991b1b;font-size:12px;padding:10px 12px;border-radius:8px;margin-bottom:14px;display:none;border-left:3px solid #dc2626}
+  .gate .ok{background:#d1fae5;color:#065f46;font-size:12px;padding:10px 12px;border-radius:8px;margin-bottom:14px;display:none;border-left:3px solid #059669}
+  .gate code{background:#eef2f7;color:#1e293b;padding:1px 6px;border-radius:4px;font-size:11.5px;font-family:'JetBrains Mono',monospace}
+  .gate .steps{font-size:12px;color:#475569;line-height:1.75;background:#f8fafc;border-radius:10px;padding:14px 16px;margin-top:16px;border:1px solid #e2e8f0}
+  .rail-user{display:flex;align-items:center;gap:9px;padding:10px 10px;margin-top:10px;border-top:1px solid rgba(255,255,255,.06);padding-top:14px}
+  .rail-user .av{width:28px;height:28px;border-radius:50%;
+    background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;display:grid;place-items:center;
+    font-size:12px;font-weight:800;flex:0 0 auto;box-shadow:inset 0 1px 0 rgba(255,255,255,.2)}
+  .rail-user .em{font-size:11.5px;color:#a8b3cf;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;font-weight:500}
+  .rail-user button{border:0;background:transparent;color:#6b7699;cursor:pointer;font-size:15px;padding:4px;border-radius:6px;transition:.15s}
+  .rail-user button:hover{color:#fff;background:rgba(255,255,255,.05)}
   .loading-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:currentColor;margin-right:6px;animation:pulse 1s infinite}
   @keyframes pulse{50%{opacity:.3}}
-  .syncbadge{font-size:10.5px;color:#5f6b7e;display:inline-flex;align-items:center;gap:5px}
+  .syncbadge{font-size:10.5px;color:#8b96b3;display:inline-flex;align-items:center;gap:5px;padding-left:2px}
   .lib-src.has{border-color:#0e7c7b;background:#e2f1f0;color:#0a5f5e}
   :root{
-    --rail:#141a23; --rail2:#1d2733; --rail-ink:#aeb9c7; --rail-ink2:#7c8898;
-    --bg:#eef1f5; --surface:#ffffff; --ink:#1a2230; --muted:#5f6b7e; --line:#e2e7ee; --line2:#eef1f6;
-    --teal:#0e7c7b; --teal-d:#0a5f5e; --teal-wash:#e2f1f0;
-    --amber:#c98a1e; --amber-wash:#fbf0da;
-    --red:#bd472f; --red-wash:#fae7e2;
-    --good:#2f8f6b; --good-wash:#e2f2ec;
-    --violet:#5f52c0; --violet-wash:#ece9fb;
-    --shadow:0 1px 2px rgba(20,30,50,.05), 0 6px 22px rgba(20,30,50,.06);
-    --r-s:8px; --r-m:12px; --r-l:18px;
+    /* Sidebar: deep navy → indigo gradient */
+    --rail:#0f1729; --rail2:#1a2340; --rail-ink:#a8b3cf; --rail-ink2:#6b7699;
+    --rail-accent:#7c8cf5;
+    /* Workspace: layered whites with cool undertone */
+    --bg:#f4f6fb; --bg2:#eef1f8; --surface:#ffffff;
+    --ink:#0f172a; --ink2:#334155; --muted:#64748b; --muted2:#94a3b8;
+    --line:#e2e8f0; --line2:#eef2f7; --line3:#f1f5f9;
+    /* Primary: refined indigo (was teal) */
+    --brand:#4f46e5; --brand-d:#3730a3; --brand-l:#818cf8; --brand-wash:#eef0fd;
+    /* Semantic accents */
+    --amber:#d97706; --amber-l:#f59e0b; --amber-wash:#fef3c7;
+    --red:#dc2626; --red-wash:#fee2e2;
+    --emerald:#059669; --emerald-l:#10b981; --emerald-wash:#d1fae5;
+    --sky:#0284c7; --sky-wash:#e0f2fe;
+    --violet:#7c3aed; --violet-wash:#ede9fe;
+    --pink:#db2777; --pink-wash:#fce7f3;
+    /* Book colors — distinct, harmonized */
+    --book-b1:#059669; --book-b2:#4f46e5; --book-b3:#7c3aed; --book-b4:#d97706;
+    /* Shadows: layered for depth */
+    --sh-sm:0 1px 2px rgba(15,23,42,.04);
+    --sh:0 1px 3px rgba(15,23,42,.05), 0 8px 24px rgba(15,23,42,.06);
+    --sh-lg:0 4px 12px rgba(15,23,42,.08), 0 20px 40px rgba(15,23,42,.08);
+    --sh-glow:0 0 0 3px rgba(79,70,229,.12);
+    /* Radii */
+    --r-s:8px; --r-m:12px; --r-l:18px; --r-xl:24px;
   }
   *{box-sizing:border-box}
   html,body{margin:0;height:100%}
   body{background:var(--bg);color:var(--ink);
-    font-family:ui-sans-serif,"Segoe UI",Roboto,-apple-system,Helvetica,Arial,sans-serif;
-    line-height:1.5;-webkit-font-smoothing:antialiased;display:flex;min-height:100vh}
-  h1,h2,h3,h4{margin:0;font-weight:700;letter-spacing:-.01em}
+    font-family:'Inter',ui-sans-serif,system-ui,-apple-system,Roboto,sans-serif;
+    line-height:1.5;-webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(1200px 600px at 100% -100px, rgba(124,140,245,.08), transparent 60%),
+      radial-gradient(800px 400px at -100px 100%, rgba(139,92,246,.06), transparent 60%);
+    background-attachment:fixed;
+    display:flex;min-height:100vh}
+  h1,h2,h3,h4{margin:0;font-weight:700;letter-spacing:-.018em;color:var(--ink)}
   button{font-family:inherit}
   .num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+  code,.mono{font-family:'JetBrains Mono',ui-monospace,Menlo,monospace}
 
   /* ---- Rail ---- */
-  .rail{width:224px;flex:0 0 224px;background:var(--rail);color:var(--rail-ink);
-    display:flex;flex-direction:column;position:sticky;top:0;height:100vh;padding:18px 14px}
-  .logo{display:flex;align-items:center;gap:10px;padding:6px 8px 16px}
-  .logo .mk{width:30px;height:30px;border-radius:9px;background:linear-gradient(150deg,var(--teal),#12a6a4);
-    display:grid;place-items:center;color:#fff;font-weight:800;font-size:15px}
+  .rail{width:236px;flex:0 0 236px;
+    background:linear-gradient(180deg,#0f1729 0%,#141c36 50%,#0f1729 100%);
+    color:var(--rail-ink);display:flex;flex-direction:column;
+    position:sticky;top:0;height:100vh;padding:20px 14px;
+    border-right:1px solid rgba(255,255,255,.05)}
+  .logo{display:flex;align-items:center;gap:11px;padding:6px 8px 20px}
+  .logo .mk{width:34px;height:34px;border-radius:10px;
+    background:linear-gradient(135deg,#4f46e5 0%,#7c3aed 100%);
+    display:grid;place-items:center;color:#fff;font-weight:800;font-size:16px;
+    box-shadow:0 4px 12px rgba(79,70,229,.35), inset 0 1px 0 rgba(255,255,255,.2)}
   .logo b{color:#fff;font-size:15px;letter-spacing:-.02em}
-  .logo span{display:block;font-size:11px;color:var(--rail-ink2);font-weight:500;margin-top:1px}
+  .logo span{display:block;font-size:11px;color:var(--rail-ink2);font-weight:500;margin-top:2px}
   .nav{display:flex;flex-direction:column;gap:2px;margin-top:4px}
-  .nav button{display:flex;align-items:center;gap:11px;width:100%;text-align:left;border:0;background:transparent;
-    color:var(--rail-ink);padding:9px 11px;border-radius:9px;cursor:pointer;font-size:13.5px;font-weight:500;transition:background .12s,color .12s}
-  .nav button .ic{width:18px;text-align:center;font-size:15px;opacity:.9}
-  .nav button:hover{background:var(--rail2);color:#fff}
-  .nav button.active{background:var(--teal);color:#fff}
-  .nav button.active .ic{opacity:1}
-  .nav .grp{font-size:10.5px;color:var(--rail-ink2);text-transform:none;font-weight:600;padding:14px 11px 5px;letter-spacing:.02em}
-  .rail-foot{margin-top:auto;padding:12px 10px 4px;border-top:1px solid #26313e}
-  .rail-foot .cd{color:#fff;font-size:22px;font-weight:800}
-  .rail-foot .cdl{font-size:11px;color:var(--rail-ink2)}
-  .rail-foot .exam{font-size:11px;color:var(--rail-ink);margin-top:6px}
+  .nav button{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:0;background:transparent;
+    color:var(--rail-ink);padding:10px 12px;border-radius:10px;cursor:pointer;font-size:13.5px;font-weight:500;
+    transition:all .15s;position:relative;font-family:inherit}
+  .nav button .ic{width:18px;text-align:center;font-size:15px;opacity:.85}
+  .nav button:hover{background:rgba(255,255,255,.05);color:#fff}
+  .nav button:hover .ic{opacity:1}
+  .nav button.active{background:linear-gradient(135deg,rgba(79,70,229,.25),rgba(124,58,237,.2));color:#fff;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+  .nav button.active::before{content:'';position:absolute;left:-14px;top:50%;transform:translateY(-50%);
+    width:3px;height:20px;background:linear-gradient(180deg,#7c8cf5,#a78bfa);border-radius:0 3px 3px 0}
+  .nav button.active .ic{opacity:1;color:#a78bfa}
+  .nav .grp{font-size:10.5px;color:var(--rail-ink2);font-weight:600;padding:16px 12px 6px;letter-spacing:.05em;text-transform:uppercase}
+  .rail-foot{margin-top:auto;padding:14px 10px 4px;border-top:1px solid rgba(255,255,255,.06)}
+  .rail-foot .cd{color:#fff;font-size:26px;font-weight:800;background:linear-gradient(135deg,#fff,#c7d2fe);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .rail-foot .cdl{font-size:11px;color:var(--rail-ink2);margin-top:2px}
+  .rail-foot .exam{font-size:11px;color:var(--rail-ink);margin-top:6px;
+    padding:6px 10px;background:rgba(255,255,255,.04);border-radius:7px;display:inline-block}
 
   /* ---- Workspace ---- */
   .work{flex:1;min-width:0;display:flex;flex-direction:column}
-  .topbar{height:60px;display:flex;align-items:center;justify-content:space-between;gap:16px;
-    padding:0 26px;border-bottom:1px solid var(--line);background:rgba(238,241,245,.8);backdrop-filter:blur(8px);position:sticky;top:0;z-index:10}
-  .topbar h2{font-size:17px}
-  .topbar .sub{font-size:12.5px;color:var(--muted);font-weight:400;margin-top:1px}
-  .duepill{display:inline-flex;align-items:center;gap:8px;background:var(--amber-wash);color:#8a5c07;
-    border:1px solid #efdcae;padding:7px 13px;border-radius:20px;font-size:12.5px;font-weight:600;cursor:pointer}
-  .duepill .dot{width:8px;height:8px;border-radius:50%;background:var(--amber)}
-  .duepill.none{background:var(--good-wash);color:#1f6b4d;border-color:#c6e6d8}
-  .duepill.none .dot{background:var(--good)}
-  .canvas{padding:26px;max-width:1000px;width:100%}
-  .view{display:none;animation:fade .25s ease}
+  .topbar{height:66px;display:flex;align-items:center;justify-content:space-between;gap:16px;
+    padding:0 30px;border-bottom:1px solid var(--line);
+    background:rgba(244,246,251,.85);backdrop-filter:blur(14px) saturate(140%);
+    position:sticky;top:0;z-index:10}
+  .topbar h2{font-size:18px;letter-spacing:-.02em}
+  .topbar .sub{font-size:12.5px;color:var(--muted);font-weight:400;margin-top:2px}
+  .duepill{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#fff7ed,#fef3c7);
+    color:#92400e;border:1px solid #fde68a;padding:8px 14px;border-radius:22px;font-size:12.5px;font-weight:600;
+    cursor:pointer;transition:.15s;box-shadow:0 1px 2px rgba(217,119,6,.1)}
+  .duepill:hover{transform:translateY(-1px);box-shadow:0 4px 10px rgba(217,119,6,.15)}
+  .duepill .dot{width:8px;height:8px;border-radius:50%;background:var(--amber-l);
+    box-shadow:0 0 0 3px rgba(245,158,11,.2)}
+  .duepill.none{background:linear-gradient(135deg,#ecfdf5,#d1fae5);color:#065f46;border-color:#a7f3d0}
+  .duepill.none .dot{background:var(--emerald-l);box-shadow:0 0 0 3px rgba(16,185,129,.2)}
+  .canvas{padding:30px;max-width:1080px;width:100%}
+  .view{display:none;animation:fade .3s ease}
   .view.on{display:block}
-  @keyframes fade{from{opacity:0}to{opacity:1}}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 
-  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-m);box-shadow:var(--shadow)}
-  .pad{padding:18px 20px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-m);box-shadow:var(--sh)}
+  .pad{padding:20px 22px}
   .row{display:flex;gap:16px;flex-wrap:wrap}
   .muted{color:var(--muted)} .sm{font-size:12.5px} .xs{font-size:11.5px}
-  .eyebrow{font-size:12px;color:var(--teal-d);font-weight:700;margin-bottom:3px}
-  .h-desc{color:var(--muted);font-size:13.5px;margin:2px 0 18px;max-width:70ch}
+  .eyebrow{font-size:11px;color:var(--brand);font-weight:700;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em}
+  .h-desc{color:var(--muted);font-size:13.5px;margin:2px 0 20px;max-width:72ch;line-height:1.6}
 
-  /* stat tiles */
-  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:20px}
-  .tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-m);padding:15px 16px;box-shadow:var(--shadow)}
-  .tile .v{font-size:26px;font-weight:800;line-height:1}
-  .tile .k{font-size:12px;color:var(--muted);margin-top:5px}
-  .tile.accent{background:linear-gradient(160deg,#0e7c7b,#0a5f5e);color:#fff;border:0}
-  .tile.accent .k{color:#cfeae9}
-  .tile.warn{border-color:#efdcae;background:var(--amber-wash)}
+  /* stat tiles — layered with subtle depth */
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:24px}
+  .tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-m);
+    padding:18px 18px;box-shadow:var(--sh);position:relative;overflow:hidden;transition:.15s}
+  .tile:hover{transform:translateY(-2px);box-shadow:var(--sh-lg)}
+  .tile .v{font-size:28px;font-weight:800;line-height:1;letter-spacing:-.02em}
+  .tile .k{font-size:12px;color:var(--muted);margin-top:6px;font-weight:500}
+  .tile.accent{background:linear-gradient(135deg,#4f46e5 0%,#7c3aed 100%);color:#fff;border:0;
+    box-shadow:0 4px 12px rgba(79,70,229,.25), 0 10px 30px rgba(79,70,229,.15)}
+  .tile.accent::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;
+    background:radial-gradient(circle,rgba(255,255,255,.15),transparent 70%);border-radius:50%}
+  .tile.accent .k{color:rgba(255,255,255,.85)}
+  .tile.warn{border-color:#fde68a;background:linear-gradient(135deg,#fffbeb,#fef3c7)}
 
   .btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:13px;font-weight:600;
-    padding:9px 15px;border-radius:9px;cursor:pointer;transition:.13s}
-  .btn:hover{border-color:var(--teal);color:var(--teal-d)}
-  .btn.primary{background:var(--teal);border-color:var(--teal);color:#fff}
-  .btn.primary:hover{background:var(--teal-d);color:#fff}
-  .btn.ghost{background:transparent}
-  .btn.sm{padding:6px 11px;font-size:12px}
-  .btn:disabled{opacity:.5;cursor:default}
+    padding:9px 16px;border-radius:9px;cursor:pointer;transition:.15s;font-family:inherit}
+  .btn:hover{border-color:var(--brand);color:var(--brand);box-shadow:var(--sh-sm)}
+  .btn.primary{background:linear-gradient(135deg,#4f46e5,#6366f1);border-color:transparent;color:#fff;
+    box-shadow:0 1px 2px rgba(79,70,229,.2), 0 4px 12px rgba(79,70,229,.15)}
+  .btn.primary:hover{background:linear-gradient(135deg,#4338ca,#4f46e5);color:#fff;
+    box-shadow:0 4px 14px rgba(79,70,229,.35);transform:translateY(-1px)}
+  .btn.ghost{background:transparent;border-color:transparent;color:var(--muted)}
+  .btn.ghost:hover{background:var(--line3);color:var(--ink);border-color:transparent}
+  .btn.sm{padding:6px 12px;font-size:12px}
+  .btn:disabled{opacity:.5;cursor:default;transform:none!important}
 
   /* dashboard method grid */
-  .methods{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
-  .method{border:1px solid var(--line);border-radius:var(--r-m);padding:16px;background:var(--surface);
-    box-shadow:var(--shadow);cursor:pointer;transition:transform .12s,border-color .12s}
-  .method:hover{transform:translateY(-2px);border-color:var(--teal)}
-  .method .mi{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-size:17px;margin-bottom:10px}
-  .method h4{font-size:14px} .method p{margin:4px 0 0;font-size:12.3px;color:var(--muted)}
-  .m-recall .mi{background:var(--teal-wash)} .m-space .mi{background:var(--amber-wash)}
-  .m-feyn .mi{background:var(--violet-wash)} .m-mind .mi{background:var(--good-wash)}
-  .m-flash .mi{background:#e8eef7}
+  .methods{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+  .method{border:1px solid var(--line);border-radius:var(--r-m);padding:18px;background:var(--surface);
+    box-shadow:var(--sh);cursor:pointer;transition:all .18s;position:relative;overflow:hidden}
+  .method:hover{transform:translateY(-3px);box-shadow:var(--sh-lg);border-color:transparent}
+  .method::after{content:'';position:absolute;inset:0;border-radius:var(--r-m);opacity:0;transition:.18s;pointer-events:none;
+    background:linear-gradient(135deg,rgba(79,70,229,.03),rgba(124,58,237,.03))}
+  .method:hover::after{opacity:1}
+  .method .mi{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font-size:18px;margin-bottom:12px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
+  .method h4{font-size:14px;margin-bottom:2px}
+  .method p{margin:4px 0 0;font-size:12.3px;color:var(--muted);line-height:1.55}
+  .m-recall .mi{background:linear-gradient(135deg,#d1fae5,#a7f3d0);color:#065f46}
+  .m-space .mi{background:linear-gradient(135deg,#fef3c7,#fde68a);color:#92400e}
+  .m-feyn .mi{background:linear-gradient(135deg,#ede9fe,#ddd6fe);color:#5b21b6}
+  .m-mind .mi{background:linear-gradient(135deg,#fce7f3,#fbcfe8);color:#9d174d}
+  .m-flash .mi{background:linear-gradient(135deg,#e0f2fe,#bae6fd);color:#075985}
 
-  /* flashcard review */
-  .review-wrap{max-width:620px;margin:0 auto}
-  .rv-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-size:12.5px;color:var(--muted)}
-  .rv-prog{height:6px;background:var(--line);border-radius:4px;overflow:hidden;margin-bottom:18px}
-  .rv-prog i{display:block;height:100%;background:var(--teal);width:0;transition:width .3s}
-  .flash{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-l);box-shadow:var(--shadow);
-    min-height:250px;display:flex;flex-direction:column;justify-content:center;padding:34px 30px;text-align:center;position:relative}
-  .flash .deckbadge{position:absolute;top:14px;left:16px;font-size:11px;font-weight:600;color:var(--teal-d);
-    background:var(--teal-wash);padding:3px 10px;border-radius:20px}
-  .flash .typebadge{position:absolute;top:14px;right:16px;font-size:11px;color:var(--muted)}
-  .flash .q{font-size:19px;font-weight:600;line-height:1.5}
-  .flash .a{font-size:15.5px;color:var(--ink);margin-top:18px;padding-top:18px;border-top:1px dashed var(--line);text-align:left;line-height:1.6}
-  .flash code{background:#f1f4f8;padding:2px 6px;border-radius:5px;font-size:14px}
-  .rv-actions{margin-top:18px;text-align:center}
-  .grades{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}
-  .grade{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:11px 6px;cursor:pointer;transition:.12s}
-  .grade:hover{transform:translateY(-1px)}
-  .grade b{display:block;font-size:13px} .grade span{font-size:11px;color:var(--muted)}
-  .grade.again:hover{border-color:var(--red);background:var(--red-wash)}
-  .grade.hard:hover{border-color:var(--amber);background:var(--amber-wash)}
-  .grade.good:hover{border-color:var(--teal);background:var(--teal-wash)}
-  .grade.easy:hover{border-color:var(--good);background:var(--good-wash)}
-  .empty{text-align:center;padding:50px 20px;color:var(--muted)}
-  .empty .big{font-size:40px;margin-bottom:8px}
+  /* flashcard review — premium, focus mode */
+  .review-wrap{max-width:640px;margin:0 auto}
+  .rv-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;font-size:12.5px;color:var(--muted);font-weight:500}
+  .rv-prog{height:6px;background:var(--line);border-radius:6px;overflow:hidden;margin-bottom:22px}
+  .rv-prog i{display:block;height:100%;background:linear-gradient(90deg,var(--brand),var(--violet));width:0;transition:width .4s;border-radius:6px}
+  .flash{background:linear-gradient(180deg,#fff 0%,#fafbff 100%);
+    border:1px solid var(--line);border-radius:var(--r-l);box-shadow:var(--sh-lg);
+    min-height:280px;display:flex;flex-direction:column;justify-content:center;
+    padding:44px 36px;text-align:center;position:relative;overflow:hidden}
+  .flash::before{content:'';position:absolute;inset:0;border-radius:var(--r-l);pointer-events:none;
+    background:linear-gradient(135deg,rgba(79,70,229,.03),transparent 50%)}
+  .flash .deckbadge{position:absolute;top:16px;left:18px;font-size:11px;font-weight:600;color:var(--brand-d);
+    background:var(--brand-wash);padding:4px 11px;border-radius:20px;letter-spacing:.01em}
+  .flash .typebadge{position:absolute;top:16px;right:18px;font-size:11px;color:var(--muted);font-weight:500}
+  .flash .q{font-size:20px;font-weight:600;line-height:1.5;color:var(--ink);letter-spacing:-.01em;position:relative}
+  .flash .a{font-size:15.5px;color:var(--ink2);margin-top:22px;padding-top:22px;
+    border-top:1px dashed var(--line);text-align:left;line-height:1.65;position:relative}
+  .flash code{background:var(--brand-wash);color:var(--brand-d);padding:2px 7px;border-radius:5px;font-size:13.5px;font-weight:500}
+  .rv-actions{margin-top:22px;text-align:center}
+  .grades{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:22px}
+  .grade{border:1.5px solid var(--line);background:var(--surface);border-radius:11px;padding:13px 6px;cursor:pointer;
+    transition:all .18s;text-align:center}
+  .grade:hover{transform:translateY(-2px);box-shadow:var(--sh)}
+  .grade b{display:block;font-size:13.5px;font-weight:700;color:var(--ink)}
+  .grade span{font-size:11px;color:var(--muted);margin-top:2px;display:block}
+  .grade.again:hover{border-color:var(--red);background:var(--red-wash);color:var(--red)}
+  .grade.again:hover b{color:var(--red)}
+  .grade.hard:hover{border-color:var(--amber);background:var(--amber-wash);color:var(--amber)}
+  .grade.hard:hover b{color:var(--amber)}
+  .grade.good:hover{border-color:var(--brand);background:var(--brand-wash);color:var(--brand)}
+  .grade.good:hover b{color:var(--brand)}
+  .grade.easy:hover{border-color:var(--emerald);background:var(--emerald-wash);color:var(--emerald)}
+  .grade.easy:hover b{color:var(--emerald)}
+  .empty{text-align:center;padding:60px 20px;color:var(--muted)}
+  .empty .big{font-size:44px;margin-bottom:10px;background:linear-gradient(135deg,var(--brand),var(--violet));
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 
   /* library / accordion */
-  .lib-src{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:7px;border:1px solid var(--line);background:var(--surface);cursor:pointer;color:var(--ink)}
-  .lib-src:hover{border-color:var(--teal);color:var(--teal-d)}
+  .lib-src{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;padding:6px 11px;
+    border-radius:8px;border:1px solid var(--line);background:var(--surface);cursor:pointer;color:var(--ink);
+    transition:.15s;font-family:inherit}
+  .lib-src:hover{border-color:var(--brand);color:var(--brand);transform:translateY(-1px);box-shadow:var(--sh-sm)}
   .lib-src .sd{width:8px;height:8px;border-radius:2px}
-  .acc{border:1px solid var(--line);border-radius:var(--r-m);overflow:hidden;margin-bottom:12px;background:var(--surface);box-shadow:var(--shadow)}
-  .acc-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;cursor:pointer}
-  .acc-hd:hover{background:#fafbfc}
-  .acc-hd .bkdot{width:11px;height:11px;border-radius:3px;flex:0 0 auto}
-  .acc-hd .cnt{font-size:12px;color:var(--muted)}
-  .acc-body{display:none;border-top:1px solid var(--line2);padding:6px 0}
+  .acc{border:1px solid var(--line);border-radius:var(--r-m);overflow:hidden;margin-bottom:14px;
+    background:var(--surface);box-shadow:var(--sh);transition:.15s}
+  .acc:hover{box-shadow:var(--sh-lg)}
+  .acc-hd{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;cursor:pointer;
+    transition:background .15s}
+  .acc-hd:hover{background:var(--line3)}
+  .acc-hd .bkdot{width:12px;height:12px;border-radius:3px;flex:0 0 auto;
+    box-shadow:0 0 0 3px rgba(255,255,255,.6), 0 1px 3px rgba(0,0,0,.1)}
+  .acc-hd .cnt{font-size:11.5px;color:var(--muted);font-weight:500;
+    padding:3px 9px;background:var(--line3);border-radius:20px}
+  .acc-body{display:none;border-top:1px solid var(--line2);padding:6px 0;background:linear-gradient(180deg,#fafbfd,#fff)}
   .acc.open .acc-body{display:block}
-  .acc.open .acc-chev{transform:rotate(90deg)}
-  .rd{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:11px 18px;border-top:1px solid var(--line2)}
+  .acc.open .acc-chev{transform:rotate(90deg);color:var(--brand)}
+  .rd{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 20px;
+    border-top:1px solid var(--line2);transition:background .1s}
   .rd:first-child{border-top:0}
-  .rd .rd-t{font-size:13.3px;font-weight:500}
-  .rd .rd-n{font-size:11.5px;color:var(--muted)}
-  .rd-srcs{display:flex;gap:6px;flex-wrap:wrap}
+  .rd:hover{background:rgba(79,70,229,.03)}
+  .rd .rd-t{font-size:13.3px;font-weight:500;color:var(--ink)}
+  .rd .rd-n{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .rd-srcs{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
 
   /* feynman */
-  .feyn-steps{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 16px}
-  .fstep{flex:1;min-width:150px;border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--surface)}
-  .fstep .n{width:22px;height:22px;border-radius:50%;background:var(--violet-wash);color:var(--violet);
-    display:grid;place-items:center;font-size:12px;font-weight:800;margin-bottom:7px}
-  .fstep h4{font-size:13px} .fstep p{margin:3px 0 0;font-size:11.8px;color:var(--muted)}
-  textarea,select,input[type=text]{width:100%;border:1px solid var(--line);border-radius:9px;padding:11px 13px;
-    font-family:inherit;font-size:14px;color:var(--ink);background:var(--surface);resize:vertical}
-  textarea:focus,select:focus,input:focus{outline:2px solid var(--teal-wash);border-color:var(--teal)}
-  label.fld{display:block;font-size:12.5px;font-weight:600;margin:0 0 6px;color:var(--ink)}
-  .feyn-saved{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-top:10px;background:#fafbfc}
-  .feyn-saved .st{font-size:12px;color:var(--muted);display:flex;justify-content:space-between}
-  .feyn-saved p{margin:6px 0 0;font-size:13px;white-space:pre-wrap}
+  .feyn-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:0 0 18px}
+  .fstep{border:1px solid var(--line);border-radius:11px;padding:14px 16px;background:var(--surface);
+    box-shadow:var(--sh-sm);transition:.15s}
+  .fstep:hover{transform:translateY(-2px);box-shadow:var(--sh)}
+  .fstep .n{width:26px;height:26px;border-radius:50%;
+    background:linear-gradient(135deg,var(--violet-wash),#ddd6fe);color:var(--violet);
+    display:grid;place-items:center;font-size:12.5px;font-weight:800;margin-bottom:9px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.8)}
+  .fstep h4{font-size:13px;color:var(--ink)}
+  .fstep p{margin:4px 0 0;font-size:11.8px;color:var(--muted);line-height:1.55}
+  textarea,select,input[type=text],input[type=email],input[type=password]{width:100%;border:1px solid var(--line);
+    border-radius:9px;padding:11px 13px;font-family:inherit;font-size:14px;color:var(--ink);
+    background:var(--surface);resize:vertical;transition:.15s}
+  textarea:focus,select:focus,input:focus{outline:none;border-color:var(--brand);box-shadow:var(--sh-glow)}
+  label.fld{display:block;font-size:12.5px;font-weight:600;margin:0 0 7px;color:var(--ink2)}
+  .feyn-saved{border:1px solid var(--line);border-radius:11px;padding:14px 16px;margin-top:12px;
+    background:linear-gradient(180deg,#fafbff,#fff);transition:.15s}
+  .feyn-saved:hover{border-color:var(--violet);box-shadow:var(--sh-sm)}
+  .feyn-saved .st{font-size:12px;color:var(--muted);display:flex;justify-content:space-between;align-items:center}
+  .feyn-saved p{margin:8px 0 0;font-size:13px;white-space:pre-wrap;color:var(--ink2);line-height:1.6}
 
   /* mindmap */
-  .mm-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+  .mm-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
   .mm-stage{border:1px solid var(--line);border-radius:var(--r-m);background:
-    radial-gradient(circle at 1px 1px, #e7ebf1 1px, transparent 0) 0 0/22px 22px, var(--surface);
-    box-shadow:var(--shadow);overflow:hidden}
-  #mmsvg{display:block;width:100%;height:440px;cursor:default}
+    radial-gradient(circle at 1px 1px, rgba(79,70,229,.08) 1px, transparent 0) 0 0/24px 24px,
+    linear-gradient(180deg,#fafbff,#fff);
+    box-shadow:var(--sh);overflow:hidden}
+  #mmsvg{display:block;width:100%;height:460px;cursor:default}
   .mm-node{cursor:pointer}
   .mm-hint{font-size:12px;color:var(--muted);margin-top:8px}
 
   /* charts */
-  .bars{display:flex;flex-direction:column;gap:11px}
-  .bar-row{display:grid;grid-template-columns:120px 1fr 54px;align-items:center;gap:12px;font-size:12.5px}
-  .bar-tr{height:14px;background:var(--line);border-radius:7px;overflow:hidden}
-  .bar-fl{height:100%;border-radius:7px}
+  .bars{display:flex;flex-direction:column;gap:12px}
+  .bar-row{display:grid;grid-template-columns:130px 1fr 60px;align-items:center;gap:12px;font-size:12.5px}
+  .bar-tr{height:16px;background:var(--line3);border-radius:8px;overflow:hidden;box-shadow:inset 0 1px 2px rgba(0,0,0,.04)}
+  .bar-fl{height:100%;border-radius:8px;transition:width .5s ease}
   .ring2{--p:0}
-  .legend2{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:12px}
-  .legend2 i{width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:5px;vertical-align:-1px}
+  .legend2{display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:14px}
+  .legend2 i{width:11px;height:11px;border-radius:3px;display:inline-block;margin-right:6px;vertical-align:-1px}
 
-  .notebox{background:var(--violet-wash);border:1px solid #d9d2f5;border-radius:10px;padding:12px 15px;font-size:12.8px;color:#43389a;margin-top:14px}
-  .notebox b{color:#332a7d}
-  .copybox{background:#fff8ea;border:1px solid #f0e0b8;border-radius:10px;padding:12px 15px;font-size:12.5px;color:#7a5a12;margin:14px 0}
+  .notebox{background:linear-gradient(135deg,var(--violet-wash),#ede9fe);border:1px solid #ddd6fe;
+    border-left:4px solid var(--violet);border-radius:10px;padding:14px 18px;font-size:12.8px;color:#4c1d95;margin-top:14px;line-height:1.6}
+  .notebox b{color:#3b0764}
+  .copybox{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fde68a;border-left:4px solid var(--amber-l);
+    border-radius:10px;padding:14px 18px;font-size:12.7px;color:#78350f;margin:14px 0;line-height:1.6}
+  .copybox b{color:#451a03}
 
   @media(max-width:820px){
     body{flex-direction:column}
     .rail{width:100%;height:auto;flex-direction:row;flex-wrap:wrap;position:static;padding:10px;gap:6px;align-items:center}
     .logo{padding:4px 8px} .rail-foot{display:none} .nav{flex-direction:row;flex-wrap:wrap;margin:0}
     .nav .grp{display:none} .nav button{width:auto;padding:8px 10px}
-    .canvas{padding:16px}
+    .nav button.active::before{display:none}
+    .canvas{padding:18px}
+    .topbar{padding:0 18px}
   }
 </style>
 </head>
 <body>
 
-<!-- Gate: shown if SUPABASE_URL/KEY chưa được điền -->
+<!-- Gate: config missing -->
 <div class="gate" id="gate-config" style="display:none">
   <div class="gate-card">
     <div class="gate-logo"><div class="mk">R</div><b>FRM Study Hub</b></div>
-    <h3>Chưa cấu hình Supabase</h3>
-    <p class="d">Mở file này bằng trình soạn thảo, tìm hai dòng <code>SUPABASE_URL</code> và <code>SUPABASE_ANON_KEY</code> ở đầu thẻ <code>&lt;script&gt;</code>, dán giá trị lấy từ Supabase → Project Settings → API, rồi lưu &amp; tải lại trang.</p>
+    <h3>Supabase not configured</h3>
+    <p class="d">Open this file in a text editor, find the two lines <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> at the top of the <code>&lt;script&gt;</code> block, paste in your values from Supabase → Project Settings → API, then save &amp; reload.</p>
     <div class="steps">1. Supabase Dashboard → Project Settings → API<br>
-    2. Copy <b>Project URL</b> → dán vào <code>SUPABASE_URL</code><br>
-    3. Copy key <b>anon / public</b> → dán vào <code>SUPABASE_ANON_KEY</code><br>
-    4. Lưu file, commit lên GitHub → Vercel tự deploy lại</div>
+    2. Copy <b>Project URL</b> → paste into <code>SUPABASE_URL</code><br>
+    3. Copy the <b>publishable / anon</b> key → paste into <code>SUPABASE_ANON_KEY</code><br>
+    4. Save the file, commit to GitHub → Vercel auto-redeploys</div>
   </div>
 </div>
 
-<!-- Gate: đăng nhập / đăng ký -->
+<!-- Gate: sign in / sign up -->
 <div class="gate" id="gate-auth" style="display:none">
   <div class="gate-card">
     <div class="gate-logo"><div class="mk">R</div><b>FRM Study Hub</b></div>
-    <h3 id="auth-title">Đăng nhập</h3>
-    <p class="d" id="auth-desc">Dữ liệu học của bạn được lưu riêng tư trên tài khoản này.</p>
+    <h3 id="auth-title">Sign in</h3>
+    <p class="d" id="auth-desc">Your study data is stored privately under this account.</p>
     <div class="err" id="auth-err"></div>
     <div class="ok" id="auth-ok"></div>
     <label>Email</label>
-    <input type="email" id="auth-email" placeholder="ban@vidu.com" autocomplete="email">
-    <label>Mật khẩu</label>
-    <input type="password" id="auth-pass" placeholder="Ít nhất 6 ký tự" autocomplete="current-password">
-    <button class="btn" id="auth-submit" onclick="authSubmit()">Đăng nhập</button>
-    <div class="switch">Chưa có tài khoản? <a onclick="authToggle()" id="auth-switch">Đăng ký ngay</a></div>
+    <input type="email" id="auth-email" placeholder="you@example.com" autocomplete="email">
+    <label>Password</label>
+    <input type="password" id="auth-pass" placeholder="At least 6 characters" autocomplete="current-password">
+    <button class="btn" id="auth-submit" onclick="authSubmit()">Sign in</button>
+    <div class="switch">No account yet? <a onclick="authToggle()" id="auth-switch">Sign up</a></div>
   </div>
 </div>
 
 <aside class="rail">
-  <div class="logo"><div class="mk">R</div><div><b>FRM Study Hub</b><span>Part I · demo cá nhân</span></div></div>
+  <div class="logo"><div class="mk">R</div><div><b>FRM Study Hub</b><span>Part I · personal study</span></div></div>
   <nav class="nav" id="nav">
-    <button data-v="home" class="active"><span class="ic">◆</span> Tổng quan</button>
-    <button data-v="plan"><span class="ic">▤</span> Lộ trình</button>
-    <button data-v="library"><span class="ic">▦</span> Thư viện</button>
-    <div class="grp">Phương pháp học</div>
-    <button data-v="flash"><span class="ic">▣</span> Flashcard &amp; giãn cách</button>
-    <button data-v="recall"><span class="ic">✎</span> Gợi nhớ chủ động</button>
+    <button data-v="home" class="active"><span class="ic">◆</span> Dashboard</button>
+    <button data-v="plan"><span class="ic">▤</span> Study Plan</button>
+    <button data-v="library"><span class="ic">▦</span> Library</button>
+    <div class="grp">Learning methods</div>
+    <button data-v="flash"><span class="ic">▣</span> Flashcards &amp; SRS</button>
+    <button data-v="recall"><span class="ic">✎</span> Active Recall</button>
     <button data-v="feynman"><span class="ic">✦</span> Feynman</button>
     <button data-v="mindmap"><span class="ic">❖</span> Mindmap</button>
-    <div class="grp">Theo dõi</div>
-    <button data-v="progress"><span class="ic">▧</span> Tiến độ</button>
+    <div class="grp">Tracking</div>
+    <button data-v="progress"><span class="ic">▧</span> Progress</button>
   </nav>
   <div class="rail-foot">
-    <div class="cd num" id="railcd">—</div><div class="cdl">ngày đến kỳ thi</div>
-    <div class="exam">Thi: 11/05/2027</div>
+    <div class="cd num" id="railcd">—</div><div class="cdl">days to exam</div>
+    <div class="exam">Exam: May 11, 2027</div>
     <div class="rail-user">
       <div class="av" id="rail-av">?</div>
       <div class="em" id="rail-email">—</div>
-      <button onclick="signOut()" title="Đăng xuất">⏻</button>
+      <button onclick="signOut()" title="Sign out">⏻</button>
     </div>
     <div class="syncbadge" id="syncstatus" style="margin-top:6px"></div>
   </div>
@@ -279,57 +385,68 @@
 
 <main class="work">
   <div class="topbar">
-    <div><h2 id="vtitle">Tổng quan</h2><div class="sub" id="vsub">Bàn học FRM của bạn</div></div>
-    <div class="duepill" id="duepill" onclick="go('flash')"><span class="dot"></span><span id="duetxt">— thẻ đến hạn</span></div>
+    <div><h2 id="vtitle">Dashboard</h2><div class="sub" id="vsub">Your FRM study desk</div></div>
+    <div class="duepill" id="duepill" onclick="go('flash')"><span class="dot"></span><span id="duetxt">— cards due</span></div>
   </div>
   <div class="canvas">
 
   <!-- HOME -->
   <section class="view on" id="v-home">
     <div class="tiles">
-      <div class="tile accent"><div class="v num" id="t-due">0</div><div class="k">thẻ cần ôn hôm nay</div></div>
-      <div class="tile"><div class="v num" id="t-mature">0</div><div class="k">thẻ đã thuộc vững</div></div>
-      <div class="tile"><div class="v num" id="t-streak">0</div><div class="k">ngày ôn liên tiếp</div></div>
-      <div class="tile"><div class="v num" id="t-feyn">0</div><div class="k">lời giải thích Feynman</div></div>
+      <div class="tile accent"><div class="v num" id="t-due">0</div><div class="k">cards due today</div></div>
+      <div class="tile"><div class="v num" id="t-mature">0</div><div class="k">cards mature</div></div>
+      <div class="tile"><div class="v num" id="t-streak">0</div><div class="k">day study streak</div></div>
+      <div class="tile"><div class="v num" id="t-feyn">0</div><div class="k">Feynman explanations</div></div>
     </div>
 
     <div class="card pad" style="margin-bottom:20px">
-      <h3 style="font-size:15px;margin-bottom:4px">Việc nên làm hôm nay</h3>
-      <p class="muted sm" style="margin-top:0">Kết hợp cả 4 "động cơ": hiểu (Feynman) → ghi nhớ (flashcard + giãn cách) → gợi nhớ → áp dụng (làm câu hỏi).</p>
+      <h3 style="font-size:15px;margin-bottom:4px">What to do today</h3>
+      <p class="muted sm" style="margin-top:0">Combine all four "engines": understanding (Feynman) → memorization (flashcards + spacing) → retrieval → application (practice questions).</p>
       <div class="row" style="margin-top:6px">
-        <button class="btn primary" onclick="go('flash')">Ôn thẻ đến hạn</button>
-        <button class="btn" onclick="go('recall')">Tự kiểm tra một chủ đề</button>
-        <button class="btn" onclick="go('feynman')">Giải thích một khái niệm</button>
-        <button class="btn" onclick="go('library')">Mở tài liệu theo Reading</button>
+        <button class="btn primary" onclick="go('flash')">Review due cards</button>
+        <button class="btn" onclick="go('recall')">Self-test a topic</button>
+        <button class="btn" onclick="go('feynman')">Explain a concept</button>
+        <button class="btn" onclick="go('library')">Open Reading materials</button>
       </div>
     </div>
 
-    <h3 style="font-size:15px;margin:0 0 10px">Năm phương pháp — mỗi cái một nhiệm vụ</h3>
+    <h3 style="font-size:15px;margin:0 0 10px">Five methods — each with a distinct job</h3>
     <div class="methods">
-      <div class="method m-recall" onclick="go('recall')"><div class="mi">✎</div><h4>Gợi nhớ chủ động</h4><p>Bằng chứng mạnh nhất. Tự truy xuất trước khi xem đáp án — cơ chế lõi của mọi phương pháp.</p></div>
-      <div class="method m-space" onclick="go('flash')"><div class="mi">◷</div><h4>Lặp lại ngắt quãng</h4><p>Phần mềm tự lên lịch ôn đúng lúc sắp quên. Dành cho công thức, định nghĩa, phân loại.</p></div>
-      <div class="method m-flash" onclick="go('flash')"><div class="mi">▣</div><h4>Flashcard</h4><p>Phương tiện chở hai kỹ thuật trên. Cloze cho công thức, thẻ "khi nào dùng" để phân biệt.</p></div>
-      <div class="method m-feyn" onclick="go('feynman')"><div class="mi">✦</div><h4>Feynman</h4><p>Động cơ hiểu sâu. Giải thích đơn giản → lộ lỗ hổng. Tốt nhất cho các reading khó.</p></div>
-      <div class="method m-mind" onclick="go('mindmap')"><div class="mi">❖</div><h4>Mindmap</h4><p>Tổ chức kiến thức nhiều liên kết; vẽ từ trí nhớ = một lần gợi nhớ lớn.</p></div>
+      <div class="method m-recall" onclick="go('recall')"><div class="mi">✎</div><h4>Active Recall</h4><p>Strongest evidence base. Retrieve before revealing — the core mechanism behind every other method.</p></div>
+      <div class="method m-space" onclick="go('flash')"><div class="mi">◷</div><h4>Spaced Repetition</h4><p>Software schedules reviews right when you're about to forget. Ideal for formulas, definitions, classifications.</p></div>
+      <div class="method m-flash" onclick="go('flash')"><div class="mi">▣</div><h4>Flashcards</h4><p>The vehicle for the two above. Cloze cards for formulas, "when to use" cards to disambiguate concepts.</p></div>
+      <div class="method m-feyn" onclick="go('feynman')"><div class="mi">✦</div><h4>Feynman</h4><p>Understanding engine. Explain in plain language → exposes gaps. Best for the hardest readings.</p></div>
+      <div class="method m-mind" onclick="go('mindmap')"><div class="mi">❖</div><h4>Mindmap</h4><p>Organize interconnected concepts; drawing one from memory is itself a large retrieval workout.</p></div>
     </div>
   </section>
 
   <!-- PLAN -->
   <section class="view" id="v-plan">
-    <p class="h-desc">Trang này đồng bộ với file lộ trình theo ngày (Book 2 → 3 → 4 → 1, theo Module Schweser) mà bạn đã có. Dưới đây là bản thu gọn "tuần hiện tại" để minh hoạ cách nó sống chung trong hub.</p>
+    <p class="h-desc">This page syncs with your day-by-day plan (Books 2 → 3 → 4 → 1, following Schweser modules). Below is a compact "current week" view showing how it lives inside the hub.</p>
     <div class="card pad">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <h3 style="font-size:14.5px">Tuần này · Book 2 — Quantitative Analysis</h3><span class="xs muted">≈22h</span>
+        <h3 style="font-size:14.5px">This week · Book 2 — Quantitative Analysis</h3><span class="xs muted">≈22h</span>
       </div>
       <div id="planlist"></div>
     </div>
-    <div class="copybox">Trong bản đầy đủ, mỗi ngày ở đây liên kết thẳng tới tài liệu Reading tương ứng, bộ thẻ của ngày đó, và ô Feynman — bấm một cái là vào đúng việc.</div>
+    <div class="copybox">In the full version, each day here deep-links to the matching Reading materials, that day's card deck, and the Feynman box — one click and you're in.</div>
   </section>
 
   <!-- LIBRARY -->
   <section class="view" id="v-library">
-    <p class="h-desc">Sắp xếp tài liệu theo đúng cấu trúc chương trình. Mỗi Reading gom 4 nguồn về một chỗ, kèm lối tắt sang thẻ / Feynman / luyện tập. Bấm một nguồn để mở tài liệu của bạn.</p>
-    <div class="copybox">⚠️ Lưu ý bản quyền: các bộ Schweser / GARP / AnalystPrep / Bionic là tài liệu có bản quyền. Web cá nhân chỉ nên <b>liên kết tới bản bạn sở hữu hợp pháp</b> và giữ ở máy/riêng tư — không đăng công khai. Demo này chỉ hiển thị nút giữ chỗ, không nhúng nội dung gốc.</div>
+    <p class="h-desc">Materials organized by the exact curriculum structure. Each Reading gathers your 4 sources in one place, with shortcuts to cards / Feynman / practice. Click a source to open your document.</p>
+    <div class="copybox"><b>How to add your materials:</b> upload the PDFs (Schweser / GARP / AnalystPrep / Bionic) to your personal Google Drive → right-click file → <b>Share → Anyone with the link</b> → copy the link → paste it into the source button below. See the "Setup guide" card for details. Copyright: keep your Drive links private if the files are copyrighted; this hub only stores your <i>links</i>, never the file content.</div>
+
+    <div class="card pad" style="margin-bottom:16px;background:linear-gradient(135deg,#f5f3ff,#faf5ff);border-color:#ddd6fe">
+      <h3 style="font-size:14px;color:#5b21b6;margin-bottom:8px">📚 Setup guide — link your materials in 4 steps</h3>
+      <ol style="margin:0;padding-left:20px;font-size:13px;color:#4c1d95;line-height:1.75">
+        <li>Upload your Schweser / GARP / AnalystPrep / Bionic PDFs to your personal Google Drive (or OneDrive, Dropbox).</li>
+        <li>For each file: right-click → <b>Share</b> → set access to "Anyone with the link" (keep it unlisted — don't post the link publicly).</li>
+        <li>Copy the shareable link.</li>
+        <li>In the Reading below, click the matching source button (Schweser / GARP / etc.) and paste the link. Next time you click that button, the PDF opens straight in a new tab. Sources with a saved link are marked ✓.</li>
+      </ol>
+    </div>
+
     <div id="libacc"></div>
   </section>
 
@@ -337,26 +454,26 @@
   <section class="view" id="v-flash">
     <div class="review-wrap">
       <div class="rv-meta">
-        <span id="rv-left">— thẻ đến hạn</span>
-        <span><button class="btn sm ghost" onclick="toggleAdd()">+ Thêm thẻ</button></span>
+        <span id="rv-left">— cards due</span>
+        <span><button class="btn sm ghost" onclick="toggleAdd()">+ Add card</button></span>
       </div>
       <div class="rv-prog"><i id="rv-bar"></i></div>
 
       <div id="addform" style="display:none;margin-bottom:16px" class="card pad">
-        <label class="fld">Bộ thẻ (Reading/Book)</label>
+        <label class="fld">Deck (Book)</label>
         <select id="af-deck"></select>
         <div style="height:10px"></div>
-        <label class="fld">Loại thẻ</label>
-        <select id="af-type"><option value="Khái niệm">Khái niệm (Q&amp;A)</option><option value="Công thức">Công thức (cloze)</option><option value="Khi nào dùng">Phân biệt / khi nào dùng</option></select>
+        <label class="fld">Card type</label>
+        <select id="af-type"><option value="Concept">Concept (Q&amp;A)</option><option value="Formula">Formula (cloze)</option><option value="When to use">Discriminate / when to use</option></select>
         <div style="height:10px"></div>
-        <label class="fld">Mặt trước (câu hỏi)</label>
-        <textarea id="af-front" rows="2" placeholder="VD: Duration đo lường điều gì?"></textarea>
+        <label class="fld">Front (question)</label>
+        <textarea id="af-front" rows="2" placeholder="e.g. What does duration measure?"></textarea>
         <div style="height:10px"></div>
-        <label class="fld">Mặt sau (đáp án) — có thể dùng &lt;code&gt;…&lt;/code&gt; cho công thức</label>
-        <textarea id="af-back" rows="2" placeholder="VD: Độ nhạy % giá trái phiếu với thay đổi lãi suất…"></textarea>
+        <label class="fld">Back (answer) — use &lt;code&gt;…&lt;/code&gt; for formulas</label>
+        <textarea id="af-back" rows="2" placeholder="e.g. % sensitivity of bond price to a change in interest rates…"></textarea>
         <div style="margin-top:12px;display:flex;gap:8px">
-          <button class="btn primary sm" onclick="addCard()">Lưu thẻ</button>
-          <button class="btn sm ghost" onclick="toggleAdd()">Huỷ</button>
+          <button class="btn primary sm" onclick="addCard()">Save card</button>
+          <button class="btn sm ghost" onclick="toggleAdd()">Cancel</button>
         </div>
       </div>
 
@@ -366,26 +483,26 @@
 
   <!-- ACTIVE RECALL -->
   <section class="view" id="v-recall">
-    <p class="h-desc">Chế độ "brain dump": chọn chủ đề, viết ra <b>tất cả</b> những gì bạn nhớ mà không nhìn tài liệu, rồi mở checklist để tự chấm. Đây là dạng gợi nhớ tự do — ép truy xuất mạnh nhất.</p>
+    <p class="h-desc">"Brain dump" mode: pick a topic, write down <b>everything</b> you remember without looking at notes, then reveal the checklist to self-score. This is free-form retrieval — the strongest form of testing yourself.</p>
     <div class="card pad">
-      <label class="fld">Chọn chủ đề để tự kiểm tra</label>
+      <label class="fld">Pick a topic to self-test</label>
       <select id="rc-topic" onchange="rcReset()"></select>
       <div style="height:12px"></div>
-      <label class="fld">Viết ra mọi thứ bạn nhớ về chủ đề này</label>
-      <textarea id="rc-input" rows="6" placeholder="Gõ tự do… định nghĩa, công thức, khi nào dùng, cạm bẫy…"></textarea>
+      <label class="fld">Write down everything you remember about it</label>
+      <textarea id="rc-input" rows="6" placeholder="Free-flow… definitions, formulas, when to use, common pitfalls…"></textarea>
       <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
-        <button class="btn primary" onclick="rcReveal()">Hiện checklist &amp; tự chấm</button>
+        <button class="btn primary" onclick="rcReveal()">Reveal checklist &amp; self-score</button>
         <span class="xs muted" id="rc-count"></span>
       </div>
       <div id="rc-key" style="display:none;margin-top:16px">
-        <h4 style="font-size:13.5px;margin-bottom:8px">Các ý cốt lõi — bạn nhớ được bao nhiêu?</h4>
+        <h4 style="font-size:13.5px;margin-bottom:8px">Core points — how many did you cover?</h4>
         <div id="rc-list"></div>
         <div style="margin-top:14px">
-          <span class="sm muted">Tự đánh giá:</span>
+          <span class="sm muted">Self-assessment:</span>
           <div class="row" style="margin-top:8px">
-            <button class="btn sm" onclick="rcScore('lại')">Còn hổng nhiều → ôn lại</button>
-            <button class="btn sm" onclick="rcScore('khá')">Nhớ phần lớn</button>
-            <button class="btn sm primary" onclick="rcScore('vững')">Nhớ gần hết</button>
+            <button class="btn sm" onclick="rcScore('again')">Many gaps → revisit</button>
+            <button class="btn sm" onclick="rcScore('most')">Remembered most</button>
+            <button class="btn sm primary" onclick="rcScore('solid')">Nearly complete</button>
           </div>
         </div>
       </div>
@@ -394,69 +511,69 @@
 
   <!-- FEYNMAN -->
   <section class="view" id="v-feynman">
-    <p class="h-desc">Giải thích khái niệm bằng ngôn ngữ đơn giản như đang dạy người mới. Chỗ nào bạn ậm ừ chính là lỗ hổng cần quay lại đọc.</p>
+    <p class="h-desc">Explain the concept in plain language, as if teaching a beginner. Wherever you stumble is a gap you need to go back and read.</p>
     <div class="feyn-steps">
-      <div class="fstep"><div class="n">1</div><h4>Chọn &amp; viết đơn giản</h4><p>Giải thích không dùng thuật ngữ, như cho người ngoài ngành.</p></div>
-      <div class="fstep"><div class="n">2</div><h4>Tìm lỗ hổng</h4><p>Chỗ nào phải dùng thuật ngữ hoặc bí — đó là chỗ chưa hiểu.</p></div>
-      <div class="fstep"><div class="n">3</div><h4>Đọc lại đúng chỗ đó</h4><p>Quay lại Schweser/GARP chỉ phần còn mơ hồ.</p></div>
-      <div class="fstep"><div class="n">4</div><h4>Viết lại gọn hơn</h4><p>Dùng ví dụ/loại suy của riêng bạn.</p></div>
+      <div class="fstep"><div class="n">1</div><h4>Pick &amp; explain simply</h4><p>No jargon — as if to someone outside finance.</p></div>
+      <div class="fstep"><div class="n">2</div><h4>Find the gaps</h4><p>Wherever you must use jargon or freeze — that's the gap.</p></div>
+      <div class="fstep"><div class="n">3</div><h4>Re-read that exact part</h4><p>Go back to Schweser/GARP only for the fuzzy piece.</p></div>
+      <div class="fstep"><div class="n">4</div><h4>Rewrite it, shorter</h4><p>Use your own examples/analogies.</p></div>
     </div>
     <div class="card pad">
-      <label class="fld">Khái niệm</label>
+      <label class="fld">Concept</label>
       <select id="fy-topic"></select>
       <div style="height:12px"></div>
-      <label class="fld">Lời giải thích của bạn</label>
-      <textarea id="fy-text" rows="6" placeholder="VaR nghĩa là… tưởng tượng bạn có một danh mục…"></textarea>
+      <label class="fld">Your explanation</label>
+      <textarea id="fy-text" rows="6" placeholder="VaR means… imagine you have a portfolio…"></textarea>
       <div style="margin-top:12px;display:flex;gap:8px">
-        <button class="btn primary" onclick="fySave()">Lưu lời giải thích</button>
-        <button class="btn ghost" onclick="fyCopyPrompt()">Sao chép prompt "nhờ AI hỏi vặn"</button>
+        <button class="btn primary" onclick="fySave()">Save explanation</button>
+        <button class="btn ghost" onclick="fyCopyPrompt()">Copy "AI as student" prompt</button>
       </div>
-      <div class="notebox"><b>Mẹo:</b> dán prompt vừa sao chép vào Claude để tôi đóng vai "học trò" hỏi lại — đây là cách lộ ra lỗ hổng mà tự học một mình khó thấy.</div>
+      <div class="notebox"><b>Tip:</b> paste the copied prompt into Claude to have it act as a curious student and probe you back — that's how you surface gaps that are invisible when you study alone.</div>
     </div>
     <div id="fy-list" style="margin-top:16px"></div>
   </section>
 
   <!-- MINDMAP -->
   <section class="view" id="v-mindmap">
-    <p class="h-desc">Vẽ sơ đồ từ trí nhớ để nối các khái niệm. Bấm một nút để thêm nhánh con; bấm đúp để sửa chữ. Nếu vẽ được mà không nhìn tài liệu — bạn đã hiểu sâu.</p>
+    <p class="h-desc">Draw a map from memory to connect concepts. Click a node to add a branch; double-click to rename. If you can draw it without notes — you understand it deeply.</p>
     <div class="mm-toolbar">
-      <button class="btn sm" onclick="mmAddToSel()">+ Thêm nhánh vào nút đang chọn</button>
-      <button class="btn sm ghost" onclick="mmRename()">Sửa tên nút</button>
-      <button class="btn sm ghost" onclick="mmDelete()">Xoá nút</button>
-      <button class="btn sm ghost" onclick="mmSeed()">Nạp ví dụ (VaR)</button>
-      <button class="btn sm ghost" onclick="mmClear()">Bắt đầu trống</button>
+      <button class="btn sm" onclick="mmAddToSel()">+ Add branch to selected</button>
+      <button class="btn sm ghost" onclick="mmRename()">Rename node</button>
+      <button class="btn sm ghost" onclick="mmDelete()">Delete node</button>
+      <button class="btn sm ghost" onclick="mmSeed()">Load example (VaR)</button>
+      <button class="btn sm ghost" onclick="mmClear()">Start blank</button>
       <span class="xs muted" id="mm-selname" style="margin-left:auto"></span>
     </div>
     <div class="mm-stage"><svg id="mmsvg" viewBox="0 0 900 440"></svg></div>
-    <div class="mm-hint">Nút đang chọn có viền đậm. Sơ đồ được lưu tự động.</div>
+    <div class="mm-hint">Selected node has a bold outline. The map saves automatically.</div>
   </section>
 
   <!-- PROGRESS -->
   <section class="view" id="v-progress">
-    <p class="h-desc">Bức tranh tổng hợp: thẻ theo trạng thái, tiến độ theo Book, chuỗi ôn, và số lời giải thích Feynman.</p>
+    <p class="h-desc">Summary view: cards by status, coverage by Book, study streak, and Feynman explanations count.</p>
     <div class="row" style="align-items:stretch">
       <div class="card pad" style="flex:1;min-width:230px;display:flex;gap:18px;align-items:center">
         <svg width="96" height="96" viewBox="0 0 96 96" style="transform:rotate(-90deg)">
           <circle cx="48" cy="48" r="40" fill="none" stroke="var(--line)" stroke-width="10"/>
-          <circle id="pg-ring" cx="48" cy="48" r="40" fill="none" stroke="var(--good)" stroke-width="10" stroke-linecap="round" stroke-dasharray="251.3" stroke-dashoffset="251.3"/>
+          <circle id="pg-ring" cx="48" cy="48" r="40" fill="none" stroke="var(--emerald)" stroke-width="10" stroke-linecap="round" stroke-dasharray="251.3" stroke-dashoffset="251.3"/>
         </svg>
         <div><div class="num" id="pg-ringpct" style="font-size:26px;font-weight:800">0%</div>
-          <div class="sm muted">thẻ đã thuộc vững<br>(mature)</div></div>
+          <div class="sm muted">cards mature<br>(interval ≥21 days)</div></div>
       </div>
       <div class="card pad" style="flex:2;min-width:260px">
-        <h4 style="font-size:13.5px;margin-bottom:12px">Thẻ theo trạng thái</h4>
+        <h4 style="font-size:13.5px;margin-bottom:12px">Cards by status</h4>
         <div class="bars" id="pg-status"></div>
-        <div class="legend2"><span><i style="background:#9aa6b6"></i>Mới</span><span><i style="background:var(--amber)"></i>Đang học</span><span><i style="background:var(--good)"></i>Thuộc vững</span></div>
+        <div class="legend2"><span><i style="background:#94a3b8"></i>New</span><span><i style="background:var(--amber-l)"></i>Learning</span><span><i style="background:var(--emerald-l)"></i>Mature</span></div>
       </div>
     </div>
     <div class="card pad" style="margin-top:16px">
-      <h4 style="font-size:13.5px;margin-bottom:12px">Số thẻ theo Book</h4>
+      <h4 style="font-size:13.5px;margin-bottom:12px">Cards per Book</h4>
       <div class="bars" id="pg-book"></div>
     </div>
     <div class="row" style="margin-top:16px">
-      <div class="tile" style="flex:1"><div class="v num" id="pg-rev">0</div><div class="k">lượt ôn đã thực hiện</div></div>
-      <div class="tile" style="flex:1"><div class="v num" id="pg-streak">0</div><div class="k">ngày ôn liên tiếp</div></div>
-      <div class="tile" style="flex:1"><div class="v num" id="pg-feyn">0</div><div class="k">lời giải thích Feynman</div></div>
+      <div class="tile" style="flex:1"><div class="v num" id="pg-rev">0</div><div class="k">total reviews</div></div>
+      <div class="tile" style="flex:1"><div class="v num" id="pg-streak">0</div><div class="k">day study streak</div></div>
+      <div class="tile" style="flex:1"><div class="v num" id="pg-feyn">0</div><div class="k">Feynman explanations</div></div>
     </div>
   </section>
 
@@ -475,10 +592,10 @@ const addDays = (n) => { const d=new Date(); d.setDate(d.getDate()+n); return d.
 
 // ---------- Books / readings (real curriculum structure, order 2-3-4-1) ----------
 const BOOKMETA = {
-  b2:{name:"Book 2 — Quantitative Analysis",color:"#2f5f9e"},
-  b3:{name:"Book 3 — Financial Markets & Products",color:"#8a5cb4"},
-  b4:{name:"Book 4 — Valuation & Risk Models",color:"#c2683a"},
-  b1:{name:"Book 1 — Foundations of Risk Management",color:"#2f7d6e"},
+  b2:{name:"Book 2 — Quantitative Analysis",color:"#4f46e5"},
+  b3:{name:"Book 3 — Financial Markets & Products",color:"#7c3aed"},
+  b4:{name:"Book 4 — Valuation & Risk Models",color:"#d97706"},
+  b1:{name:"Book 1 — Foundations of Risk Management",color:"#059669"},
 };
 const READINGS = {
   b2:[[13,"Random Variables"],[14,"Common Univariate Random Variables"],[15,"Multivariate Random Variables"],[16,"Sample Moments"],[17,"Hypothesis Testing"],[18,"Linear Regression"],[19,"Regression w/ Multiple Explanatory Variables"],[20,"Regression Diagnostics"],[21,"Stationary Time Series"],[22,"Non-Stationary Time Series"],[23,"Measuring Returns, Volatility & Correlation"],[24,"Simulation & Bootstrapping"],[25,"Machine Learning & Prediction"],[26,"Machine-Learning Methods"]],
@@ -486,41 +603,41 @@ const READINGS = {
   b4:[[47,"Measures of Financial Risk"],[48,"Calculating & Applying VaR"],[49,"Measuring & Monitoring Volatility"],[52,"Measuring Credit Risk"],[58,"Applying Duration, Convexity & DV01"],[59,"Non-Parallel Term Structure Shifts"],[60,"Binomial Trees"],[61,"Black-Scholes-Merton Model"],[62,"Option Sensitivity — The Greeks"]],
   b1:[[5,"Modern Portfolio Theory & CAPM"],[7,"Risk Data Aggregation & Reporting"],[10,"Great Financial Crisis 2007–2009"],[11,"GARP Code of Conduct"]],
 };
-const SOURCES = [["GARP","#c2683a"],["Schweser","#2f5f9e"],["AnalystPrep","#0e7c7b"],["Bionic","#8a5cb4"]];
+const SOURCES = [["GARP","#d97706"],["Schweser","#4f46e5"],["AnalystPrep","#059669"],["Bionic","#7c3aed"]];
 
 // ---------- Seed flashcards (standard facts/formulas, own phrasing) ----------
 const SEED = [
-  ["b4","Công thức","VaR (tham số) theo độ tin cậy c, kỳ hạn t:","VaR = <code>z_c × σ × √t × V</code> — với z_c là phân vị chuẩn (1.65 cho 95%, 2.33 cho 99%)."],
-  ["b4","Khái niệm","Expected Shortfall (ES) là gì? Khác VaR chỗ nào?","Kỳ vọng tổn thất <b>vượt</b> mức VaR — trung bình các tổn thất ở đuôi xấu hơn VaR. Nhạy với độ nặng đuôi hơn VaR; còn gọi CVaR."],
-  ["b4","Khi nào dùng","Khi nào dùng EWMA thay cho trung bình động đều (SMA) để ước lượng biến động?","Khi muốn phản ứng nhanh với cú sốc gần đây: EWMA cho trọng số giảm dần theo λ, quan sát mới nặng hơn quan sát cũ."],
-  ["b4","Công thức","Black-Scholes: d1 = ?","d1 = <code>[ln(S/K) + (r + σ²/2)·T] / (σ·√T)</code>; và d2 = d1 − σ√T."],
-  ["b4","Khái niệm","Duration đo gì? Convexity bổ sung gì?","Duration = độ nhạy % của giá trái phiếu với thay đổi lãi suất (xấp xỉ bậc 1). Convexity = hiệu chỉnh bậc 2 cho độ cong quan hệ giá–lợi suất."],
-  ["b4","Khi nào dùng","Ba dạng dịch chuyển đường cong lãi suất không song song & cách phòng hộ?","Steepening/flattening (độ dốc) và butterfly (độ cong). Phòng hộ bằng key-rate duration / partial (bucket) durations thay vì một duration tổng."],
-  ["b2","Khái niệm","Phân biệt sai lầm loại I và loại II.","Loại I (α): bác bỏ H₀ khi H₀ đúng (dương tính giả). Loại II (β): không bác bỏ H₀ khi H₀ sai. Power = 1 − β."],
-  ["b2","Khi nào dùng","Khi nào dùng phân phối t thay vì z?","Khi phương sai tổng thể chưa biết (ước lượng từ mẫu) và/hoặc cỡ mẫu nhỏ. Phân phối t có đuôi dày hơn, hội tụ về z khi n lớn."],
-  ["b2","Khái niệm","Chuỗi thời gian dừng (stationary) nghĩa là gì?","Kỳ vọng, phương sai và tự hiệp phương sai không đổi theo thời gian (chỉ phụ thuộc độ trễ). Điều kiện để mô hình AR/MA hợp lệ."],
-  ["b2","Công thức","Sharpe ratio = ?","Sharpe = <code>(R_p − R_f) / σ_p</code> — phần bù rủi ro trên mỗi đơn vị tổng rủi ro (độ lệch chuẩn)."],
-  ["b3","Khi nào dùng","Futures khác Forwards ở những điểm cốt lõi nào?","Futures: chuẩn hoá, giao dịch trên sàn, ký quỹ & mark-to-market hằng ngày, rủi ro đối tác thấp. Forwards: OTC, tuỳ biến, thanh toán khi đáo hạn, rủi ro đối tác cao."],
-  ["b3","Công thức","Covered call gồm gì?","Long cổ phiếu + short <code>call</code>. Thu phí quyền chọn, đánh đổi phần tăng giá bị giới hạn phía trên."],
-  ["b1","Khái niệm","Tinh thần nền tảng của GARP Code of Conduct?","Chính trực, khách quan, năng lực chuyên môn và bảo mật; đặt lợi ích của ngành nghề và công chúng lên trên lợi ích cá nhân."],
-  ["b1","Khái niệm","CAPM phát biểu điều gì?","E(R_i) = R_f + β_i·(E(R_m) − R_f). Chỉ rủi ro hệ thống (β) được định giá; rủi ro riêng có thể đa dạng hoá."],
+  ["b4","Formula","Parametric VaR at confidence c, horizon t:","VaR = <code>z_c × σ × √t × V</code> — where z_c is the normal quantile (1.65 for 95%, 2.33 for 99%)."],
+  ["b4","Concept","What is Expected Shortfall (ES)? How does it differ from VaR?","Expected loss <b>beyond</b> VaR — the average of losses in the tail worse than VaR. More sensitive to tail heaviness than VaR; also called CVaR."],
+  ["b4","When to use","When to use EWMA instead of a simple moving average (SMA) for volatility?","When you want to react quickly to recent shocks: EWMA gives decaying weights via λ, so recent observations count more than old ones."],
+  ["b4","Formula","Black-Scholes: d1 = ?","d1 = <code>[ln(S/K) + (r + σ²/2)·T] / (σ·√T)</code>; and d2 = d1 − σ√T."],
+  ["b4","Concept","What does duration measure? What does convexity add?","Duration = % sensitivity of bond price to a change in interest rates (first-order). Convexity = second-order correction for the curvature of the price–yield relationship."],
+  ["b4","When to use","Three types of non-parallel yield curve shifts & how to hedge?","Steepening/flattening (slope) and butterfly (curvature). Hedge with key-rate durations / partial (bucket) durations instead of a single aggregate duration."],
+  ["b2","Concept","Distinguish Type I vs Type II errors.","Type I (α): reject H₀ when H₀ is true (false positive). Type II (β): fail to reject H₀ when H₀ is false. Power = 1 − β."],
+  ["b2","When to use","When to use the t-distribution instead of z?","When the population variance is unknown (estimated from the sample) and/or sample size is small. Fatter tails than z, converges to z as n grows."],
+  ["b2","Concept","What does 'stationary' mean for a time series?","Mean, variance, and autocovariances are time-invariant (depend only on lag). Required for AR/MA models to be valid."],
+  ["b2","Formula","Sharpe ratio = ?","Sharpe = <code>(R_p − R_f) / σ_p</code> — excess return per unit of total risk (standard deviation)."],
+  ["b3","When to use","How do futures differ from forwards at the core?","Futures: standardized, exchange-traded, daily margining & mark-to-market, low counterparty risk. Forwards: OTC, customized, settled at maturity, higher counterparty risk."],
+  ["b3","Formula","What is a covered call?","Long stock + short <code>call</code>. Collects the premium, gives up upside beyond the strike."],
+  ["b1","Concept","Core spirit of the GARP Code of Conduct?","Integrity, objectivity, professional competence and confidentiality; put the interests of the profession and the public ahead of personal interest."],
+  ["b1","Concept","What does CAPM say?","E(R_i) = R_f + β_i·(E(R_m) − R_f). Only systematic risk (β) is priced; idiosyncratic risk can be diversified away."],
 ];
 
 // ---------- Recall & Feynman topics ----------
 const RECALL = {
-  "Value at Risk (VaR)":["Định nghĩa: tổn thất tối đa ở mức tin cậy c trong kỳ hạn t","Công thức tham số: z_c × σ × √t × V","Giả định phân phối (thường chuẩn) & hạn chế","Ba phương pháp: tham số, mô phỏng lịch sử, Monte Carlo","VaR không cộng gộp (không subadditive) → nhược điểm","ES/CVaR khắc phục điểm yếu ở đuôi"],
-  "Duration & Convexity":["Duration = độ nhạy % giá với Δlãi suất (bậc 1)","Macaulay vs Modified vs Effective duration","Convexity = hiệu chỉnh bậc 2 (độ cong)","ΔP/P ≈ −D·Δy + ½·C·Δy²","DV01 = thay đổi giá cho 1 bp","Hạn chế khi dịch chuyển không song song"],
-  "Black-Scholes-Merton":["Giả định: GBM, không cổ tức (bản gốc), lãi suất & σ không đổi","d1, d2 và ý nghĩa N(d1), N(d2)","Giá call = S·N(d1) − K·e^(−rT)·N(d2)","Put-call parity","Vai trò của σ (biến động ngụ ý)","Hạn chế: volatility smile, đuôi dày"],
-  "Time Series (AR/MA)":["Tính dừng là điều kiện tiên quyết","AR(p): phụ thuộc giá trị trễ; MA(q): phụ thuộc sốc trễ","ACF & PACF để nhận dạng bậc","Kiểm định nghiệm đơn vị (Dickey-Fuller)","Tự tương quan → hệ quả với hồi quy","Random walk & sai phân để làm dừng"],
-  "Hedging with Futures":["Hedge ratio & minimum-variance hedge","Basis risk là gì","Cross hedging khi không có hợp đồng khớp","Tailing the hedge","Rolling the hedge & rủi ro","β điều chỉnh cho phòng hộ danh mục cổ phiếu"],
-  "CAPM & Portfolio Theory":["Đường thị trường vốn (CML) vs SML","β đo rủi ro hệ thống","Đa dạng hoá loại bỏ rủi ro riêng","Giả định của CAPM & phê phán","Jensen's alpha, Treynor, Sharpe","Danh mục hiệu quả & biên hiệu quả"],
+  "Value at Risk (VaR)":["Definition: maximum loss at confidence c over horizon t","Parametric formula: z_c × σ × √t × V","Distributional assumption (usually normal) & its limits","Three methods: parametric, historical simulation, Monte Carlo","VaR is not sub-additive → weakness","ES/CVaR fixes the tail weakness"],
+  "Duration & Convexity":["Duration = % price sensitivity to Δrates (first-order)","Macaulay vs Modified vs Effective duration","Convexity = second-order correction (curvature)","ΔP/P ≈ −D·Δy + ½·C·Δy²","DV01 = price change per 1 bp","Limits under non-parallel shifts"],
+  "Black-Scholes-Merton":["Assumptions: GBM, no dividends (original), constant r & σ","d1, d2 and the meaning of N(d1), N(d2)","Call price = S·N(d1) − K·e^(−rT)·N(d2)","Put-call parity","Role of σ (implied volatility)","Limits: volatility smile, fat tails"],
+  "Time Series (AR/MA)":["Stationarity is a prerequisite","AR(p): depends on lagged values; MA(q): depends on lagged shocks","ACF & PACF to identify order","Unit-root test (Dickey-Fuller)","Autocorrelation → consequences for regression","Random walk & differencing to induce stationarity"],
+  "Hedging with Futures":["Hedge ratio & minimum-variance hedge","What basis risk is","Cross hedging when there's no matching contract","Tailing the hedge","Rolling the hedge & its risks","β-adjusted hedge for an equity portfolio"],
+  "CAPM & Portfolio Theory":["Capital Market Line (CML) vs SML","β measures systematic risk","Diversification eliminates idiosyncratic risk","CAPM assumptions & criticisms","Jensen's alpha, Treynor, Sharpe","Efficient portfolios & the efficient frontier"],
 };
 const FEYNMAN_TOPICS = Object.keys(RECALL);
 
 // ---------- Supabase state + auth ----------
 let sb=null, USER=null, authMode='signin';
 let S = { cards:[], feyn:[], revlog:[], revcount:0, mm:null, mats:{} };
-function save(){ /* no-op: mọi thao tác lưu thẳng lên Supabase */ }
+function save(){ /* no-op: everything writes straight to Supabase */ }
 function configured(){ return SUPABASE_URL.indexOf("http")===0 && SUPABASE_ANON_KEY.length>20; }
 
 async function boot(){
@@ -530,16 +647,16 @@ async function boot(){
   if(session){ USER=session.user; await afterLogin(); }
   else { document.getElementById("gate-auth").style.display="flex"; }
 }
-function gMsg(id,txt){ const e=document.getElementById(id); if(txt){e.textContent=txt;e.style.display="block";} else {e.style.display="none";} }
+function gMsg(id,txt){ const e=document.getElementById(id); if(txt){e.textContent=txt;e.style.display="block";} else {e.style.display=" none";} }
 function showErr(t){ gMsg("auth-err",t); if(t) gMsg("auth-ok",""); }
 function showOk(t){ gMsg("auth-ok",t); if(t) gMsg("auth-err",""); }
 function authToggle(){
   authMode = authMode==='signin'?'signup':'signin';
-  document.getElementById("auth-title").textContent = authMode==='signin'?'Đăng nhập':'Đăng ký';
-  document.getElementById("auth-submit").textContent = authMode==='signin'?'Đăng nhập':'Tạo tài khoản';
+  document.getElementById("auth-title").textContent = authMode==='signin'?'Sign in':'Sign up';
+  document.getElementById("auth-submit").textContent = authMode==='signin'?'Sign in':'Create account';
   document.querySelector("#gate-auth .switch").innerHTML = authMode==='signin'
-    ? 'Chưa có tài khoản? <a onclick="authToggle()">Đăng ký ngay</a>'
-    : 'Đã có tài khoản? <a onclick="authToggle()">Đăng nhập</a>';
+    ? 'No account yet? <a onclick="authToggle()">Sign up</a>'
+    : 'Already have an account? <a onclick="authToggle()">Sign in</a>';
   showErr(""); showOk("");
 }
 async function authSubmit(){
@@ -552,7 +669,7 @@ async function authSubmit(){
       const {data,error}=await sb.auth.signUp({email,password:pass});
       if(error) throw error;
       if(data.session){ USER=data.session.user; await afterLogin(); }
-      else { showOk("Đã tạo tài khoản. Nếu 'Confirm email' đang bật thì kiểm tra hộp thư; nếu đã tắt, bấm Đăng nhập."); }
+      else { showOk("Account created. If 'Confirm email' is on, check your inbox; if it's off, click Sign in."); }
     } else {
       const {data,error}=await sb.auth.signInWithPassword({email,password:pass});
       if(error) throw error;
@@ -593,16 +710,16 @@ async function loadAll(){
 }
 function setSync(s){
   const el=document.getElementById("syncstatus"); if(!el)return;
-  if(s==='saving') el.innerHTML='<span class="loading-dot"></span>Đang lưu…';
-  else if(s==='ok'){ el.textContent='✓ Đã lưu'; setTimeout(()=>{ if(el.textContent==='✓ Đã lưu') el.textContent=''; },1400); }
-  else if(s==='err') el.textContent='⚠ Lỗi lưu — kiểm tra mạng';
+  if(s==='saving') el.innerHTML='<span class="loading-dot"></span>Saving…';
+  else if(s==='ok'){ el.textContent='✓ Saved'; setTimeout(()=>{ if(el.textContent==='✓ Saved') el.textContent=''; },1400); }
+  else if(s==='err') el.textContent='⚠ Save failed — check network';
 }
 
 // ---------- Router ----------
-const TITLES = {home:["Tổng quan","Bàn học FRM của bạn"],plan:["Lộ trình","Kế hoạch theo ngày, đồng bộ với file của bạn"],
-  library:["Thư viện","Tài liệu gom theo Reading — 4 nguồn một chỗ"],flash:["Flashcard & lặp lại ngắt quãng","Ôn đúng thẻ, đúng lúc"],
-  recall:["Gợi nhớ chủ động","Tự truy xuất trước khi xem đáp án"],feynman:["Feynman","Hiểu sâu bằng cách giải thích lại"],
-  mindmap:["Mindmap","Nối khái niệm — vẽ từ trí nhớ"],progress:["Tiến độ","Bức tranh tổng hợp"]};
+const TITLES = {home:["Dashboard","Your FRM study desk"],plan:["Study Plan","Day-by-day schedule, synced to your file"],
+  library:["Library","Materials by Reading — 4 sources in one place"],flash:["Flashcards & Spaced Repetition","Review the right cards at the right time"],
+  recall:["Active Recall","Retrieve before revealing the answer"],feynman:["Feynman","Deep understanding by re-explaining"],
+  mindmap:["Mindmap","Connect concepts — draw from memory"],progress:["Progress","Overall snapshot"]};
 function go(v){
   document.querySelectorAll(".view").forEach(x=>x.classList.remove("on"));
   document.getElementById("v-"+v).classList.add("on");
@@ -628,7 +745,7 @@ function refreshChrome(){
   document.getElementById("railcd").textContent = daysToExam();
   const d = dueCards().length;
   const pill=document.getElementById("duepill");
-  document.getElementById("duetxt").textContent = d>0? (d+" thẻ đến hạn") : "Đã ôn hết hôm nay";
+  document.getElementById("duetxt").textContent = d>0? (d+" cards due") : "All caught up today";
   pill.classList.toggle("none", d===0);
 }
 
@@ -642,21 +759,21 @@ function renderHome(){
 
 // ---------- PLAN (sample week) ----------
 function renderPlan(){
-  const wk=[["T2","2–3h","R13 · Module 13.2: Mean, Variance, Skewness & Kurtosis","Học"],
-    ["T3","2–3h","R13 · Module 13.3: Probability Density & Linear Transformations","Học"],
-    ["T4","2–3h","Luyện tập R13: Random Variables","Luyện tập"],
-    ["T5","2–3h","R14 · Module 14.1: Uniform, Bernoulli, Binomial, Poisson","Học"],
-    ["T6","2–3h","R14 · Module 14.2 + 14.3: Normal, Lognormal & Additional","Học"],
-    ["T7","4–5h","Luyện tập R14 + R15 · Module 15.1","Học + Luyện"],
-    ["CN","4–5h","R15 · Module 15.2–15.3: Moments of Bivariate RVs","Học"]];
+  const wk=[["Mon","2–3h","R13 · Module 13.2: Mean, Variance, Skewness & Kurtosis","Study"],
+    ["Tue","2–3h","R13 · Module 13.3: Probability Density & Linear Transformations","Study"],
+    ["Wed","2–3h","Practice R13: Random Variables","Practice"],
+    ["Thu","2–3h","R14 · Module 14.1: Uniform, Bernoulli, Binomial, Poisson","Study"],
+    ["Fri","2–3h","R14 · Module 14.2 + 14.3: Normal, Lognormal & Additional","Study"],
+    ["Sat","4–5h","Practice R14 + R15 · Module 15.1","Study + Practice"],
+    ["Sun","4–5h","R15 · Module 15.2–15.3: Moments of Bivariate RVs","Study"]];
   document.getElementById("planlist").innerHTML = wk.map(d=>`
     <div class="rd" style="border-top:1px solid var(--line2)">
       <div style="display:flex;gap:12px;align-items:center">
         <span style="width:30px;font-weight:700;font-size:12.5px;color:var(--muted)">${d[0]}</span>
-        <span style="font-size:11px;color:#fff;background:${d[1].includes('4')?'#c2683a':'#0e7c7b'};padding:2px 8px;border-radius:11px">${d[1]}</span>
+        <span style="font-size:11px;color:#fff;background:${d[1].includes('4')?'#d97706':'#4f46e5'};padding:2px 8px;border-radius:11px">${d[1]}</span>
         <span class="rd-t">${d[2]}</span>
       </div>
-      <span class="xs" style="color:var(--teal-d);font-weight:600">${d[3]}</span>
+      <span class="xs" style="color:var(--brand-d);font-weight:600">${d[3]}</span>
     </div>`).join("");
 }
 
@@ -668,10 +785,10 @@ function renderLibrary(){
     const rows=rs.map(r=>`
       <div class="rd">
         <div><div class="rd-t">R${r[0]} — ${r[1]}</div>
-          <div class="rd-n">${cardsFor(bk).length? '' : ''}Nguồn tài liệu:</div></div>
+          <div class="rd-n">Sources:</div></div>
         <div class="rd-srcs">
           ${SOURCES.map(s=>{const has=!!S.mats[('R'+r[0])+'|'+s[0]];return `<span class="lib-src${has?' has':''}" onclick="openSrc('${s[0]}','R${r[0]}')"><span class="sd" style="background:${s[1]}"></span>${s[0]}${has?' ✓':''}</span>`;}).join("")}
-          <span class="lib-src" style="border-color:var(--teal);color:var(--teal-d)" onclick="go('flash')">▣ Thẻ</span>
+          <span class="lib-src" style="border-color:var(--brand);color:var(--brand-d)" onclick="go('flash')">▣ Cards</span>
           <span class="lib-src" style="border-color:var(--violet);color:var(--violet)" onclick="go('feynman')">✦ Feynman</span>
         </div>
       </div>`).join("");
@@ -693,9 +810,9 @@ function renderLibrary(){
 function openSrc(src,code){
   const key=code+'|'+src, cur=S.mats[key];
   if(cur){
-    if(confirm(`Mở tài liệu ${src} cho ${code}?\n\n(Bấm Cancel nếu muốn đổi/sửa link)`)){ window.open(cur,'_blank'); return; }
+    if(confirm(`Open ${src} document for ${code}?\n\n(Cancel to change/edit the link)`)){ window.open(cur,'_blank'); return; }
   }
-  const v=prompt(`Dán link tài liệu "${src}" của bạn cho ${code}\n(VD: link Google Drive/OneDrive bản bạn sở hữu hợp pháp):`, cur||"");
+  const v=prompt(`Paste your "${src}" document link for ${code}\n(e.g. Google Drive/OneDrive link — a copy you own legally):`, cur||"");
   if(v!==null && v.trim()) saveMat(code, src, v.trim());
 }
 async function saveMat(code, src, url){
@@ -726,9 +843,9 @@ function paintCard(){
   const total=session.total||1;
   bar.style.width = (100*(total-remaining)/total)+"%";
   if(remaining===0){
-    wrap.innerHTML = `<div class="empty"><div class="big">✓</div><h3 style="font-size:16px">Hết thẻ đến hạn hôm nay</h3>
-      <p class="sm">Phần mềm đã lên lịch các thẻ này cho những ngày tới. Quay lại mai để ôn tiếp — đó chính là lặp lại ngắt quãng.</p>
-      <button class="btn primary" style="margin-top:10px" onclick="go('recall')">Chuyển sang tự kiểm tra</button></div>`;
+    wrap.innerHTML = `<div class="empty"><div class="big">✓</div><h3 style="font-size:16px">All cards done for today</h3>
+      <p class="sm">The scheduler has queued these cards for the coming days. Come back tomorrow to review the next batch — that's spaced repetition working.</p>
+      <button class="btn primary" style="margin-top:10px" onclick="go('recall')">Switch to self-testing</button></div>`;
     refreshChrome(); return;
   }
   const c = S.cards.find(x=>x.id===session.queue[0]);
@@ -739,13 +856,13 @@ function paintCard(){
       <div class="q">${c.front}</div>
       <div class="a" id="ans" style="display:none">${c.back}</div>
     </div>
-    <div id="revealwrap" class="rv-actions"><button class="btn primary" onclick="reveal()">Hiện đáp án</button>
-      <div class="xs muted" style="margin-top:8px">Thử tự trả lời trong đầu trước khi bấm — đó là bước gợi nhớ.</div></div>
+    <div id="revealwrap" class="rv-actions"><button class="btn primary" onclick="reveal()">Show answer</button>
+      <div class="xs muted" style="margin-top:8px">Try to answer in your head before clicking — that's the retrieval step.</div></div>
     <div id="gradewrap" class="grades" style="display:none">
-      <div class="grade again" onclick="grade('again')"><b>Lại</b><span>&lt;10 phút</span></div>
-      <div class="grade hard" onclick="grade('hard')"><b>Khó</b><span id="g-hard"></span></div>
-      <div class="grade good" onclick="grade('good')"><b>Được</b><span id="g-good"></span></div>
-      <div class="grade easy" onclick="grade('easy')"><b>Dễ</b><span id="g-easy"></span></div>
+      <div class="grade again" onclick="grade('again')"><b>Again</b><span>&lt;10 min</span></div>
+      <div class="grade hard" onclick="grade('hard')"><b>Hard</b><span id="g-hard"></span></div>
+      <div class="grade good" onclick="grade('good')"><b>Good</b><span id="g-good"></span></div>
+      <div class="grade easy" onclick="grade('easy')"><b>Easy</b><span id="g-easy"></span></div>
     </div>`;
 }
 function reveal(){
@@ -757,7 +874,7 @@ function reveal(){
   document.getElementById("g-good").textContent = fmtI(previewIvl(c,"good"));
   document.getElementById("g-easy").textContent = fmtI(previewIvl(c,"easy"));
 }
-function fmtI(d){ return d<1? "hôm nay" : (d===1? "1 ngày" : d+" ngày"); }
+function fmtI(d){ return d<1? "today" : (d===1? "1 day" : d+" days"); }
 function previewIvl(c,g){
   let ivl=c.ivl, ease=c.ease, reps=c.reps;
   if(g==="hard") ivl=Math.max(1,Math.round((ivl||1)*1.2));
@@ -792,7 +909,7 @@ function toggleAdd(){ addOpen=!addOpen; document.getElementById("addform").style
 async function addCard(){
   const front=document.getElementById("af-front").value.trim();
   const back=document.getElementById("af-back").value.trim();
-  if(!front||!back){ alert("Nhập cả mặt trước và mặt sau."); return; }
+  if(!front||!back){ alert("Please fill in both front and back."); return; }
   const book=document.getElementById("af-deck").value, type=document.getElementById("af-type").value;
   setSync('saving');
   try{
@@ -800,7 +917,7 @@ async function addCard(){
     if(error) throw error;
     S.cards.push({id:data.id, book, type, front, back, ivl:0, ease:2.5, reps:0, lapses:0, due:data.due||todayISO()});
     setSync('ok');
-  }catch(e){ setSync('err'); alert("Lỗi lưu thẻ, thử lại."); return; }
+  }catch(e){ setSync('err'); alert("Failed to save card, please try again."); return; }
   document.getElementById("af-front").value=""; document.getElementById("af-back").value="";
   toggleAdd(); session=null; renderReview(); refreshChrome();
 }
@@ -821,12 +938,12 @@ function rcReveal(){
       <input type="checkbox" style="margin-top:3px"> <span>${x}</span></label>`).join("");
   document.getElementById("rc-key").style.display="block";
   const words=document.getElementById("rc-input").value.trim().split(/\s+/).filter(Boolean).length;
-  document.getElementById("rc-count").textContent = words? ("Bạn viết "+words+" từ") : "";
+  document.getElementById("rc-count").textContent = words? ("You wrote "+words+" words") : "";
 }
 async function rcScore(r){
   const topic=document.getElementById("rc-topic").value;
   try{ await sb.from('recall_scores').insert({user_id:USER.id, topic, self_rating:r}); }catch(e){}
-  alert("Đã ghi mức tự đánh giá cho: "+topic+".\nHãy quay lại chủ đề này định kỳ để củng cố.");
+  alert("Self-assessment saved for: "+topic+".\nRevisit this topic regularly to reinforce it.");
 }
 
 // ---------- FEYNMAN ----------
@@ -838,22 +955,22 @@ function fyInit(){
 async function fySave(){
   const topic=document.getElementById("fy-topic").value;
   const text=document.getElementById("fy-text").value.trim();
-  if(!text){ alert("Viết lời giải thích của bạn trước đã."); return; }
+  if(!text){ alert("Write your explanation first."); return; }
   setSync('saving');
   try{
     const {data,error}=await sb.from('feynman_notes').insert({user_id:USER.id, topic, content:text}).select().single();
     if(error) throw error;
     S.feyn.unshift({id:data.id, topic, text, date:todayISO()});
     setSync('ok');
-  }catch(e){ setSync('err'); alert("Lỗi lưu, thử lại."); return; }
+  }catch(e){ setSync('err'); alert("Failed to save, please try again."); return; }
   document.getElementById("fy-text").value=""; fyList();
 }
 function fyList(){
   const el=document.getElementById("fy-list");
-  if(!S.feyn.length){ el.innerHTML=`<div class="empty" style="padding:26px"><div class="big">✦</div><p class="sm">Chưa có lời giải thích nào. Viết cái đầu tiên ở trên.</p></div>`; return; }
-  el.innerHTML = `<h4 style="font-size:13.5px;margin:6px 0 10px">Lời giải thích đã lưu (${S.feyn.length})</h4>` +
+  if(!S.feyn.length){ el.innerHTML=`<div class="empty" style="padding:26px"><div class="big">✦</div><p class="sm">No explanations yet. Write your first above.</p></div>`; return; }
+  el.innerHTML = `<h4 style="font-size:13.5px;margin:6px 0 10px">Saved explanations (${S.feyn.length})</h4>` +
     S.feyn.map((f,i)=>`<div class="feyn-saved"><div class="st"><b style="color:var(--violet)">${f.topic}</b>
-      <span>${f.date} · <a href="#" onclick="fyDel(${i});return false" style="color:var(--muted)">xoá</a></span></div>
+      <span>${f.date} · <a href="#" onclick="fyDel(${i});return false" style="color:var(--muted)">delete</a></span></div>
       <p>${escapeHtml(f.text)}</p></div>`).join("");
 }
 async function fyDel(i){
@@ -863,9 +980,9 @@ async function fyDel(i){
 }
 function fyCopyPrompt(){
   const topic=document.getElementById("fy-topic").value;
-  const text=document.getElementById("fy-text").value.trim() || "(dán lời giải thích của bạn vào đây)";
-  const prompt=`Tôi đang ôn FRM Part I. Đây là lời giải thích của tôi về "${topic}":\n\n"${text}"\n\nHãy đóng vai một học trò tò mò: chỉ ra chỗ nào tôi giải thích mơ hồ/sai, đặt 3 câu hỏi "tại sao" để kiểm tra tôi có thực sự hiểu, và gợi ý một ví dụ thực tế để tôi giải thích lại.`;
-  navigator.clipboard?.writeText(prompt).then(()=>alert("Đã sao chép prompt. Dán vào Claude để được 'hỏi vặn'."),
+  const text=document.getElementById("fy-text").value.trim() || "(paste your explanation here)";
+  const prompt=`I'm studying for FRM Part I. Here is my explanation of "${topic}":\n\n"${text}"\n\nPlease play the role of a curious student: point out anywhere my explanation is vague or wrong, ask 3 "why" questions to test whether I truly understand, and suggest a real-world example for me to re-explain.`;
+  navigator.clipboard?.writeText(prompt).then(()=>alert("Prompt copied. Paste it into Claude to get 'questioned back'."),
     ()=>prompt);
 }
 
@@ -873,14 +990,14 @@ function fyCopyPrompt(){
 const SVGNS="http://www.w3.org/2000/svg";
 let mm, mmSel;
 function mmDefault(){ return {id:"root",label:"Value at Risk",x:450,y:220,children:[
-  {id:"n1",label:"Định nghĩa",x:0,y:0,children:[]},
-  {id:"n2",label:"3 phương pháp",x:0,y:0,children:[{id:"n2a",label:"Tham số",x:0,y:0,children:[]},{id:"n2b",label:"Historical",x:0,y:0,children:[]},{id:"n2c",label:"Monte Carlo",x:0,y:0,children:[]}]},
-  {id:"n3",label:"Hạn chế (đuôi)",x:0,y:0,children:[]},
+  {id:"n1",label:"Definition",x:0,y:0,children:[]},
+  {id:"n2",label:"3 methods",x:0,y:0,children:[{id:"n2a",label:"Parametric",x:0,y:0,children:[]},{id:"n2b",label:"Historical",x:0,y:0,children:[]},{id:"n2c",label:"Monte Carlo",x:0,y:0,children:[]}]},
+  {id:"n3",label:"Tail limitations",x:0,y:0,children:[]},
   {id:"n4",label:"ES / CVaR",x:0,y:0,children:[]},
 ]};}
 function mmInit(){ mm = S.mm ? JSON.parse(JSON.stringify(S.mm)) : mmDefault(); mmSel=mm.id; }
 function mmSeed(){ mm=mmDefault(); mmSel=mm.id; mmPersist(); mmRender(); }
-function mmClear(){ mm={id:"root",label:"Chủ đề trung tâm",x:450,y:220,children:[]}; mmSel="root"; mmPersist(); mmRender(); }
+function mmClear(){ mm={id:"root",label:"Central topic",x:450,y:220,children:[]}; mmSel="root"; mmPersist(); mmRender(); }
 async function mmPersist(){
   S.mm=JSON.parse(JSON.stringify(mm));
   try{ await sb.from('mindmaps').upsert({user_id:USER.id, name:'default', data:mm, updated_at:new Date().toISOString()},{onConflict:'user_id,name'}); }
@@ -906,12 +1023,12 @@ function mmRender(){
     rect.setAttribute("x",-w/2); rect.setAttribute("y",-h/2); rect.setAttribute("width",w); rect.setAttribute("height",h);
     rect.setAttribute("rx",9);
     const isRoot=depth===0, sel=node.id===mmSel;
-    rect.setAttribute("fill", isRoot? "#0e7c7b" : (depth===1?"#eef4f9":"#f6f8fb"));
-    rect.setAttribute("stroke", sel? "#c98a1e" : (isRoot?"#0a5f5e":"#cdd8e4"));
+    rect.setAttribute("fill", isRoot? "#4f46e5" : (depth===1?"#eef0fd":"#f6f8fb"));
+    rect.setAttribute("stroke", sel? "#d97706" : (isRoot?"#3730a3":"#cdd8e4"));
     rect.setAttribute("stroke-width", sel? "2.5":"1.4");
     const tx=document.createElementNS(SVGNS,"text");
     tx.setAttribute("text-anchor","middle"); tx.setAttribute("dy","4.5"); tx.setAttribute("font-size","12.5");
-    tx.setAttribute("fill", isRoot?"#fff":"#1a2230"); tx.setAttribute("font-weight", isRoot?"700":"500");
+    tx.setAttribute("fill", isRoot?"#fff":"#0f172a"); tx.setAttribute("font-weight", isRoot?"700":"500");
     tx.textContent=node.label;
     g.appendChild(rect); g.appendChild(tx);
     g.addEventListener("click",()=>{ mmSel=node.id; mmRender(); });
@@ -919,7 +1036,7 @@ function mmRender(){
     svg.appendChild(g);
   });
   const selNode=find(mm,mmSel);
-  document.getElementById("mm-selname").textContent = selNode? ("Đang chọn: "+selNode.label) : "";
+  document.getElementById("mm-selname").textContent = selNode? ("Selected: "+selNode.label) : "";
 }
 function layout(){
   mm.x=450; mm.y=220;
@@ -942,15 +1059,15 @@ function layout(){
 function walk(node,parent,fn,depth=0){ fn(node,parent,depth); (node.children||[]).forEach(c=>walk(c,node,fn,depth+1)); }
 function find(node,id){ if(node.id===id)return node; for(const c of (node.children||[])){const r=find(c,id); if(r)return r;} return null; }
 function mmAddToSel(){
-  const n=find(mm,mmSel); if(!n){alert("Chọn một nút trước.");return;}
-  const label=prompt("Tên nhánh mới:", ""); if(label===null||!label.trim())return;
+  const n=find(mm,mmSel); if(!n){alert("Select a node first.");return;}
+  const label=prompt("New branch name:", ""); if(label===null||!label.trim())return;
   n.children=n.children||[]; n.children.push({id:"n"+Date.now(),label:label.trim(),x:0,y:0,children:[]});
   mmPersist(); mmRender();
 }
 function mmRename(){ const n=find(mm,mmSel); if(n) mmRenameNode(n); }
-function mmRenameNode(n){ const v=prompt("Sửa tên nút:", n.label); if(v!==null&&v.trim()){ n.label=v.trim(); mmPersist(); mmRender(); } }
+function mmRenameNode(n){ const v=prompt("Rename node:", n.label); if(v!==null&&v.trim()){ n.label=v.trim(); mmPersist(); mmRender(); } }
 function mmDelete(){
-  if(mmSel==="root"){ alert("Không xoá được nút gốc. Dùng 'Bắt đầu trống' để làm lại."); return; }
+  if(mmSel==="root"){ alert("Can't delete the root node. Use 'Start blank' to reset."); return; }
   const rm=(node)=>{ node.children=(node.children||[]).filter(c=>c.id!==mmSel); node.children.forEach(rm); };
   rm(mm); mmSel="root"; mmPersist(); mmRender();
 }
@@ -973,7 +1090,7 @@ function renderProgress(){
   document.getElementById("pg-ringpct").textContent = pct+"%";
   const mx=Math.max(1,nw,learn,mat);
   document.getElementById("pg-status").innerHTML =
-    barRow("Mới",nw,mx,"#9aa6b6")+barRow("Đang học",learn,mx,"var(--amber)")+barRow("Thuộc vững",mat,mx,"var(--good)");
+    barRow("New",nw,mx,"#94a3b8")+barRow("Learning",learn,mx,"var(--amber-l)")+barRow("Mature",mat,mx,"var(--emerald-l)");
   const perBook=["b2","b3","b4","b1"].map(b=>[BOOKMETA[b].name.split("—")[0].trim(),cardsFor(b).length,BOOKMETA[b].color]);
   const bmx=Math.max(1,...perBook.map(x=>x[1]));
   document.getElementById("pg-book").innerHTML = perBook.map(x=>barRow(x[0],x[1],bmx,x[2])).join("");
