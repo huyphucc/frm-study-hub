@@ -54,6 +54,33 @@
   .loading-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:currentColor;margin-right:6px;animation:pulse 1s infinite}
   @keyframes pulse{50%{opacity:.3}}
   .syncbadge{font-size:10.5px;color:#8b96b3;display:inline-flex;align-items:center;gap:5px;padding-left:2px}
+
+  /* practice questions */
+  .qcard{background:linear-gradient(180deg,#fff,#fafbff);border:1px solid var(--line);
+    border-radius:var(--r-l);box-shadow:var(--sh-lg);padding:26px 28px;margin-bottom:16px}
+  .qmeta{display:flex;gap:8px;flex-wrap:wrap;font-size:11px;margin-bottom:14px}
+  .qmeta span{padding:3px 10px;border-radius:20px;font-weight:600;background:var(--brand-wash);color:var(--brand-d)}
+  .qmeta span.topic{background:var(--violet-wash);color:#5b21b6}
+  .qmeta span.src{background:var(--line3);color:var(--muted)}
+  .qstem{font-size:16px;font-weight:500;line-height:1.55;color:var(--ink);margin-bottom:20px}
+  .qchoices{display:flex;flex-direction:column;gap:10px}
+  .qch{display:flex;gap:12px;align-items:flex-start;padding:12px 16px;border:1.5px solid var(--line);border-radius:11px;
+    cursor:pointer;transition:.15s;background:var(--surface);font-size:14px;line-height:1.5}
+  .qch:hover:not(.locked){border-color:var(--brand);background:var(--brand-wash)}
+  .qch.locked{cursor:default}
+  .qch .letter{width:26px;height:26px;border-radius:50%;background:var(--line3);color:var(--muted);
+    display:grid;place-items:center;font-size:12px;font-weight:700;flex:0 0 auto}
+  .qch.correct{border-color:var(--emerald);background:var(--emerald-wash)}
+  .qch.correct .letter{background:var(--emerald);color:#fff}
+  .qch.wrong{border-color:var(--red);background:var(--red-wash)}
+  .qch.wrong .letter{background:var(--red);color:#fff}
+  .qexpl{margin-top:18px;padding:14px 18px;background:linear-gradient(135deg,#f0f9ff,#e0f2fe);
+    border-left:4px solid var(--sky);border-radius:10px;font-size:13.5px;line-height:1.6;color:#0c4a6e}
+  .qexpl b{color:#082f49}
+  .qnav{display:flex;justify-content:space-between;align-items:center;margin-top:16px;gap:10px}
+  .qempty{text-align:center;padding:60px 20px;color:var(--muted)}
+  .qempty .big{font-size:44px;margin-bottom:10px;
+    background:linear-gradient(135deg,var(--brand),var(--violet));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
   .lib-src.has{border-color:#0e7c7b;background:#e2f1f0;color:#0a5f5e}
   :root{
     /* Sidebar: deep navy → indigo gradient */
@@ -365,6 +392,7 @@
     <button data-v="library"><span class="ic">▦</span> Library</button>
     <div class="grp">Learning methods</div>
     <button data-v="flash"><span class="ic">▣</span> Flashcards &amp; SRS</button>
+    <button data-v="practice"><span class="ic">✓</span> Practice Questions</button>
     <button data-v="recall"><span class="ic">✎</span> Active Recall</button>
     <button data-v="feynman"><span class="ic">✦</span> Feynman</button>
     <button data-v="mindmap"><span class="ic">❖</span> Mindmap</button>
@@ -404,6 +432,7 @@
       <p class="muted sm" style="margin-top:0">Combine all four "engines": understanding (Feynman) → memorization (flashcards + spacing) → retrieval → application (practice questions).</p>
       <div class="row" style="margin-top:6px">
         <button class="btn primary" onclick="go('flash')">Review due cards</button>
+        <button class="btn" onclick="go('practice')">Practice questions</button>
         <button class="btn" onclick="go('recall')">Self-test a topic</button>
         <button class="btn" onclick="go('feynman')">Explain a concept</button>
         <button class="btn" onclick="go('library')">Open Reading materials</button>
@@ -455,9 +484,30 @@
     <div class="review-wrap">
       <div class="rv-meta">
         <span id="rv-left">— cards due</span>
-        <span><button class="btn sm ghost" onclick="toggleAdd()">+ Add card</button></span>
+        <span>
+          <button class="btn sm ghost" onclick="toggleImportCSV()">↑ Import CSV</button>
+          <button class="btn sm ghost" onclick="toggleAdd()">+ Add card</button>
+        </span>
       </div>
       <div class="rv-prog"><i id="rv-bar"></i></div>
+
+      <div id="importform" style="display:none;margin-bottom:16px" class="card pad">
+        <h4 style="font-size:14px;margin-bottom:6px">Bulk import flashcards from CSV</h4>
+        <p class="xs muted" style="margin:0 0 12px">CSV columns: <code>book,type,front,back</code> — book uses <code>b1/b2/b3/b4</code>. Header row optional. Front/back may include HTML like &lt;code&gt;.</p>
+        <div class="copybox" style="margin:8px 0 12px;padding:10px 14px;font-size:11.5px">
+          <b>Example:</b><br>
+          <code>b4,Formula,"VaR = ?","z_c × σ × √t × V"</code><br>
+          <code>b2,Concept,"What is Type I error?","Rejecting H0 when it is true"</code>
+        </div>
+        <label class="fld">Paste CSV content, or upload a .csv file</label>
+        <input type="file" id="csv-file" accept=".csv,text/csv" style="margin-bottom:10px;padding:8px" onchange="csvLoadFile(event)">
+        <textarea id="csv-text" rows="7" placeholder="book,type,front,back&#10;b4,Formula,&quot;VaR formula?&quot;,&quot;z × σ × √t × V&quot;&#10;..."></textarea>
+        <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+          <button class="btn primary sm" onclick="csvImport()">Import cards</button>
+          <button class="btn sm ghost" onclick="toggleImportCSV()">Cancel</button>
+          <span class="xs muted" id="csv-status"></span>
+        </div>
+      </div>
 
       <div id="addform" style="display:none;margin-bottom:16px" class="card pad">
         <label class="fld">Deck (Book)</label>
@@ -479,6 +529,75 @@
 
       <div id="rv-card"></div>
     </div>
+  </section>
+
+  <!-- PRACTICE QUESTIONS -->
+  <section class="view" id="v-practice">
+    <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:14px">
+      <p class="h-desc" style="margin:0;flex:1;min-width:280px">Multiple-choice practice. Choose a filter, answer questions, see the explanation, and let the "wrong list" become tomorrow's flashcards.</p>
+      <div style="display:flex;gap:8px">
+        <button class="btn sm ghost" onclick="toggleQImport()">↑ Import CSV</button>
+        <button class="btn sm ghost" onclick="toggleQAdd()">+ Add question</button>
+      </div>
+    </div>
+
+    <div class="card pad" style="margin-bottom:16px">
+      <div class="row" style="gap:12px;align-items:end">
+        <div style="flex:1;min-width:150px"><label class="fld">Book</label>
+          <select id="q-fbook" onchange="qStart()"><option value="all">All books</option>
+            <option value="b2">Book 2 — Quant</option><option value="b3">Book 3 — Markets</option>
+            <option value="b4">Book 4 — Valuation</option><option value="b1">Book 1 — Foundations</option>
+            <option value="mock">📝 This week's mock (last 7 days)</option>
+            <option value="wrong">⚠ Only questions I got wrong</option></select></div>
+        <div style="flex:1;min-width:150px"><label class="fld">Topic (optional)</label>
+          <select id="q-ftopic" onchange="qStart()"><option value="all">Any topic</option></select></div>
+        <div><button class="btn primary" onclick="qStart()">Start / Reset</button></div>
+      </div>
+    </div>
+
+    <div id="qaddform" style="display:none;margin-bottom:16px" class="card pad">
+      <h4 style="font-size:14px;margin-bottom:10px">Add a single question</h4>
+      <label class="fld">Book</label><select id="qa-book"><option value="b2">Book 2</option><option value="b3">Book 3</option><option value="b4">Book 4</option><option value="b1">Book 1</option></select>
+      <div style="height:8px"></div>
+      <div class="row"><div style="flex:1"><label class="fld">Topic (tag)</label><input type="text" id="qa-topic" placeholder="e.g. VaR"></div>
+      <div style="flex:1"><label class="fld">Reading (optional)</label><input type="text" id="qa-reading" placeholder="e.g. R48"></div></div>
+      <div style="height:8px"></div>
+      <label class="fld">Question (stem)</label><textarea id="qa-stem" rows="2"></textarea>
+      <div style="height:8px"></div>
+      <div class="row"><div style="flex:1"><label class="fld">Choice A</label><input type="text" id="qa-a"></div>
+      <div style="flex:1"><label class="fld">Choice B</label><input type="text" id="qa-b"></div></div>
+      <div class="row" style="margin-top:6px"><div style="flex:1"><label class="fld">Choice C</label><input type="text" id="qa-c"></div>
+      <div style="flex:1"><label class="fld">Choice D</label><input type="text" id="qa-d"></div></div>
+      <div style="height:8px"></div>
+      <div class="row"><div style="flex:0 0 120px"><label class="fld">Correct</label><select id="qa-correct"><option>A</option><option>B</option><option>C</option><option>D</option></select></div>
+      <div style="flex:1"><label class="fld">Source</label><input type="text" id="qa-source" placeholder="GARP, AnalystPrep, Own…"></div></div>
+      <div style="height:8px"></div>
+      <label class="fld">Explanation</label><textarea id="qa-expl" rows="2"></textarea>
+      <div style="margin-top:12px;display:flex;gap:8px">
+        <button class="btn primary sm" onclick="qAdd()">Save question</button>
+        <button class="btn sm ghost" onclick="toggleQAdd()">Cancel</button>
+      </div>
+    </div>
+
+    <div id="qimportform" style="display:none;margin-bottom:16px" class="card pad">
+      <h4 style="font-size:14px;margin-bottom:6px">Bulk import questions from CSV</h4>
+      <p class="xs muted" style="margin:0 0 12px">Columns (in order): <code>book,topic,reading_code,stem,choice_a,choice_b,choice_c,choice_d,correct,explanation,source</code>. Header row optional. Use quotes for fields containing commas.</p>
+      <div class="copybox" style="margin:8px 0 12px;padding:10px 14px;font-size:11px">
+        <b>Example row:</b><br>
+        <code>b4,VaR,R48,"A 1-day 95% VaR is $1M. What does this mean?","95% chance of losing exactly $1M","95% chance loss won't exceed $1M","95% chance of losing at least $1M","Loss will be $1M",B,"VaR = loss not exceeded with c confidence over t horizon.",AnalystPrep</code>
+      </div>
+      <label class="fld">Paste CSV content, or upload a .csv file</label>
+      <input type="file" id="qcsv-file" accept=".csv,text/csv" style="margin-bottom:10px;padding:8px" onchange="qCsvLoadFile(event)">
+      <textarea id="qcsv-text" rows="8" placeholder="book,topic,reading_code,stem,choice_a,choice_b,choice_c,choice_d,correct,explanation,source"></textarea>
+      <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+        <button class="btn primary sm" onclick="qCsvImport()">Import questions</button>
+        <button class="btn sm ghost" onclick="toggleQImport()">Cancel</button>
+        <span class="xs muted" id="qcsv-status"></span>
+      </div>
+    </div>
+
+    <div id="q-stats" class="tiles" style="display:none"></div>
+    <div id="q-panel"></div>
   </section>
 
   <!-- ACTIVE RECALL -->
@@ -583,7 +702,7 @@
 <script>
 "use strict";
 // ====== CẤU HÌNH: điền 2 giá trị từ Supabase → Project Settings → API ======
-const SUPABASE_URL = "https://ewfpanlsglfvivyuyfpu.supabase.co";
+const SUPABASE_URL = "https://ewfpanlsglfvivyuyfpu.supabase.co"; 
 const SUPABASE_ANON_KEY = "sb_publishable_ii5_O__lgKU5yecBOp7Hjg_LctySm0d";
 // ==========================================================================
 const EXAM = new Date("2027-05-11T00:00:00");
@@ -636,7 +755,7 @@ const FEYNMAN_TOPICS = Object.keys(RECALL);
 
 // ---------- Supabase state + auth ----------
 let sb=null, USER=null, authMode='signin';
-let S = { cards:[], feyn:[], revlog:[], revcount:0, mm:null, mats:{} };
+let S = { cards:[], feyn:[], revlog:[], revcount:0, mm:null, mats:{}, questions:[], qattempts:[] };
 function save(){ /* no-op: everything writes straight to Supabase */ }
 function configured(){ return SUPABASE_URL.indexOf("http")===0 && SUPABASE_ANON_KEY.length>20; }
 
@@ -707,6 +826,10 @@ async function loadAll(){
   S.mm= mmrow? mmrow.data : null; mm=null;
   let { data:ml } = await sb.from('material_links').select('*');
   S.mats={}; (ml||[]).forEach(m=>{ S.mats[m.reading_code+'|'+m.source]=m.url; });
+  let { data:qs } = await sb.from('questions').select('*').order('created_at',{ascending:false});
+  S.questions = qs || [];
+  let { data:qa } = await sb.from('question_attempts').select('*').order('attempted_at',{ascending:false}).limit(2000);
+  S.qattempts = qa || [];
 }
 function setSync(s){
   const el=document.getElementById("syncstatus"); if(!el)return;
@@ -718,6 +841,7 @@ function setSync(s){
 // ---------- Router ----------
 const TITLES = {home:["Dashboard","Your FRM study desk"],plan:["Study Plan","Day-by-day schedule, synced to your file"],
   library:["Library","Materials by Reading — 4 sources in one place"],flash:["Flashcards & Spaced Repetition","Review the right cards at the right time"],
+  practice:["Practice Questions","MCQs with instant feedback and a weekly mock"],
   recall:["Active Recall","Retrieve before revealing the answer"],feynman:["Feynman","Deep understanding by re-explaining"],
   mindmap:["Mindmap","Connect concepts — draw from memory"],progress:["Progress","Overall snapshot"]};
 function go(v){
@@ -727,6 +851,7 @@ function go(v){
   document.getElementById("vtitle").textContent = TITLES[v][0];
   document.getElementById("vsub").textContent = TITLES[v][1];
   if(v==="flash") renderReview();
+  if(v==="practice") qInit();
   if(v==="library") renderLibrary();
   if(v==="plan") renderPlan();
   if(v==="recall") rcInit();
@@ -764,17 +889,22 @@ function renderPlan(){
     ["Wed","2–3h","Practice R13: Random Variables","Practice"],
     ["Thu","2–3h","R14 · Module 14.1: Uniform, Bernoulli, Binomial, Poisson","Study"],
     ["Fri","2–3h","R14 · Module 14.2 + 14.3: Normal, Lognormal & Additional","Study"],
-    ["Sat","4–5h","Practice R14 + R15 · Module 15.1","Study + Practice"],
-    ["Sun","4–5h","R15 · Module 15.2–15.3: Moments of Bivariate RVs","Study"]];
-  document.getElementById("planlist").innerHTML = wk.map(d=>`
-    <div class="rd" style="border-top:1px solid var(--line2)">
+    ["Sat","3–4h","Practice R14 + R15 · Module 15.1","Study + Practice"],
+    ["Sun","1.5–2h","📝 Weekly mock test — this week's topics only","Mock test"]];
+  document.getElementById("planlist").innerHTML = wk.map(d=>{
+    const isMock=d[3]==="Mock test";
+    const badgeColor=d[1].includes('4')?'#d97706':(isMock?'#7c3aed':'#4f46e5');
+    const rowClick=isMock?`onclick="go('practice'); setTimeout(()=>{const s=document.getElementById('q-fbook'); if(s){s.value='mock'; qStart();}}, 400);" style="cursor:pointer"`:'';
+    return `
+    <div class="rd" style="border-top:1px solid var(--line2)" ${rowClick}>
       <div style="display:flex;gap:12px;align-items:center">
-        <span style="width:30px;font-weight:700;font-size:12.5px;color:var(--muted)">${d[0]}</span>
-        <span style="font-size:11px;color:#fff;background:${d[1].includes('4')?'#d97706':'#4f46e5'};padding:2px 8px;border-radius:11px">${d[1]}</span>
+        <span style="width:34px;font-weight:700;font-size:12.5px;color:var(--muted)">${d[0]}</span>
+        <span style="font-size:11px;color:#fff;background:${badgeColor};padding:2px 8px;border-radius:11px">${d[1]}</span>
         <span class="rd-t">${d[2]}</span>
       </div>
-      <span class="xs" style="color:var(--brand-d);font-weight:600">${d[3]}</span>
-    </div>`).join("");
+      <span class="xs" style="color:${isMock?'var(--violet)':'var(--brand-d)'};font-weight:600">${d[3]}${isMock?' ↗':''}</span>
+    </div>`;
+  }).join("");
 }
 
 // ---------- LIBRARY ----------
@@ -1104,6 +1234,246 @@ function barRow(label,val,mx,color){
 
 // ---------- util ----------
 function escapeHtml(s){ return s.replace(/[&<>]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[m])); }
+
+// ---------- CSV parser (RFC 4180-ish, handles quoted fields) ----------
+function parseCSV(text){
+  const rows=[]; let row=[], field='', inQ=false;
+  const chars=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+  for(let i=0;i<chars.length;i++){
+    const c=chars[i];
+    if(inQ){
+      if(c==='"' && chars[i+1]==='"'){ field+='"'; i++; }
+      else if(c==='"') inQ=false;
+      else field+=c;
+    } else {
+      if(c==='"') inQ=true;
+      else if(c===','){ row.push(field); field=''; }
+      else if(c==='\n'){ row.push(field); rows.push(row); row=[]; field=''; }
+      else field+=c;
+    }
+  }
+  if(field.length||row.length){ row.push(field); rows.push(row); }
+  return rows.filter(r=>r.length>1 || (r.length===1 && r[0].trim()));
+}
+
+// ---------- CSV import for flashcards ----------
+let csvOpen=false;
+function toggleImportCSV(){ csvOpen=!csvOpen; document.getElementById("importform").style.display=csvOpen?"block":"none"; }
+function csvLoadFile(ev){
+  const f=ev.target.files[0]; if(!f)return;
+  const r=new FileReader();
+  r.onload=e=>{ document.getElementById("csv-text").value=e.target.result; };
+  r.readAsText(f);
+}
+async function csvImport(){
+  const text=document.getElementById("csv-text").value.trim();
+  if(!text){ alert("Paste CSV content or upload a file first."); return; }
+  const stat=document.getElementById("csv-status");
+  const rows=parseCSV(text);
+  // detect header
+  const first=rows[0].map(x=>x.trim().toLowerCase());
+  const hasHeader = first.includes('front') || first.includes('back') || first[0]==='book';
+  const data=hasHeader? rows.slice(1) : rows;
+  const valid=[]; const skipped=[];
+  data.forEach((r,i)=>{
+    const [book,type,front,back]=r.map(x=>(x||'').trim());
+    if(!book||!front||!back || !['b1','b2','b3','b4'].includes(book.toLowerCase())){
+      skipped.push(i+1+(hasHeader?1:0)); return;
+    }
+    valid.push({user_id:USER.id, book:book.toLowerCase(), type:type||'Concept', front, back});
+  });
+  if(!valid.length){ stat.textContent="No valid rows found."; return; }
+  stat.textContent="Uploading "+valid.length+" cards…";
+  try{
+    // insert in chunks of 100
+    for(let i=0;i<valid.length;i+=100){
+      const chunk=valid.slice(i,i+100);
+      const {error}=await sb.from('cards').insert(chunk); if(error) throw error;
+    }
+    stat.textContent="✓ Imported "+valid.length+(skipped.length?(" · skipped "+skipped.length):"")+".";
+    await loadAll(); session=null; refreshChrome();
+    setTimeout(()=>{ toggleImportCSV(); document.getElementById("csv-text").value=""; stat.textContent=""; renderReview(); }, 1200);
+  }catch(e){ stat.textContent="⚠ "+(e.message||"Import failed"); }
+}
+
+// ---------- PRACTICE QUESTIONS ----------
+let qSession=null;
+
+function qInit(){
+  qRefreshTopics();
+  qRenderStats();
+  qStart();
+}
+function qRefreshTopics(){
+  const sel=document.getElementById("q-ftopic");
+  const cur=sel.value;
+  const topics=[...new Set(S.questions.map(q=>q.topic).filter(Boolean))].sort();
+  sel.innerHTML='<option value="all">Any topic</option>'+topics.map(t=>`<option>${escapeHtml(t)}</option>`).join("");
+  if([...sel.options].find(o=>o.value===cur)) sel.value=cur;
+}
+function qFilteredList(){
+  const bk=document.getElementById("q-fbook").value;
+  const tp=document.getElementById("q-ftopic").value;
+  let list=S.questions.slice();
+  if(bk==='mock'){
+    // questions attempted or added in last 7 days OR whose topic appeared in recent attempts
+    const cutoff=Date.now()-7*86400000;
+    const recentIds=new Set(S.qattempts.filter(a=>new Date(a.attempted_at).getTime()>=cutoff).map(a=>a.question_id));
+    list=list.filter(q=>recentIds.has(q.id) || new Date(q.created_at).getTime()>=cutoff);
+  } else if(bk==='wrong'){
+    // questions where the LAST attempt was wrong
+    const last={};
+    S.qattempts.slice().reverse().forEach(a=>{ if(a.question_id && !(a.question_id in last)) last[a.question_id]=a.correct; });
+    list=list.filter(q=>last[q.id]===false);
+  } else if(bk!=='all'){
+    list=list.filter(q=>q.book===bk);
+  }
+  if(tp!=='all') list=list.filter(q=>q.topic===tp);
+  // shuffle
+  for(let i=list.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [list[i],list[j]]=[list[j],list[i]]; }
+  return list;
+}
+function qStart(){
+  qRefreshTopics();
+  qRenderStats();
+  const list=qFilteredList();
+  qSession={list, i:0, answered:false, correct:0, wrong:0};
+  qRender();
+}
+function qRenderStats(){
+  const total=S.questions.length;
+  const wrongIds=new Set();
+  const last={};
+  S.qattempts.slice().reverse().forEach(a=>{ if(a.question_id && !(a.question_id in last)) last[a.question_id]=a.correct; });
+  Object.keys(last).forEach(id=>{ if(last[id]===false) wrongIds.add(id); });
+  const attempted=Object.keys(last).length;
+  const acc = attempted? Math.round(100*Object.values(last).filter(x=>x).length/attempted) : 0;
+  const el=document.getElementById("q-stats");
+  el.style.display=total>0?'grid':'none';
+  el.innerHTML=`
+    <div class="tile"><div class="v num">${total}</div><div class="k">total questions</div></div>
+    <div class="tile"><div class="v num">${attempted}</div><div class="k">attempted</div></div>
+    <div class="tile"><div class="v num">${acc}%</div><div class="k">accuracy</div></div>
+    <div class="tile warn"><div class="v num">${wrongIds.size}</div><div class="k">on wrong list</div></div>`;
+}
+function qRender(){
+  const wrap=document.getElementById("q-panel");
+  if(!qSession || !qSession.list.length){
+    if(S.questions.length===0){
+      wrap.innerHTML=`<div class="qempty"><div class="big">?</div><h3 style="font-size:16px">No questions yet</h3>
+        <p class="sm" style="margin-top:6px;max-width:400px;margin-left:auto;margin-right:auto">Add your first question above, or paste a CSV export from your question bank.</p></div>`;
+    } else {
+      wrap.innerHTML=`<div class="qempty"><div class="big">✓</div><h3 style="font-size:16px">No questions match this filter</h3>
+        <p class="sm">Try "All books" or a different topic.</p></div>`;
+    }
+    return;
+  }
+  if(qSession.i >= qSession.list.length){
+    wrap.innerHTML=`<div class="qempty"><div class="big">🎯</div><h3 style="font-size:16px">Session complete</h3>
+      <p class="sm">You answered ${qSession.correct+qSession.wrong} questions · ${qSession.correct} correct · ${qSession.wrong} wrong.</p>
+      <button class="btn primary" style="margin-top:14px" onclick="qStart()">Start another session</button></div>`;
+    return;
+  }
+  const q=qSession.list[qSession.i];
+  const bookName=BOOKMETA[q.book]?BOOKMETA[q.book].name.split('—')[0].trim():q.book;
+  wrap.innerHTML=`
+    <div class="qcard">
+      <div class="qmeta">
+        <span>${bookName}</span>
+        ${q.topic?`<span class="topic">${escapeHtml(q.topic)}</span>`:''}
+        ${q.reading_code?`<span class="src">${escapeHtml(q.reading_code)}</span>`:''}
+        ${q.source?`<span class="src">${escapeHtml(q.source)}</span>`:''}
+        <span style="background:transparent;color:var(--muted);font-weight:500;margin-left:auto">
+          Question ${qSession.i+1} of ${qSession.list.length}</span>
+      </div>
+      <div class="qstem">${escapeHtml(q.stem)}</div>
+      <div class="qchoices">
+        ${['A','B','C','D'].map(L=>`
+          <div class="qch" id="ch-${L}" onclick="qChoose('${L}')">
+            <div class="letter">${L}</div><div>${escapeHtml(q['choice_'+L.toLowerCase()])}</div>
+          </div>`).join('')}
+      </div>
+      <div id="q-expl-slot"></div>
+      <div class="qnav">
+        <button class="btn sm ghost" onclick="qSkip()">Skip →</button>
+        <button class="btn primary" id="q-next-btn" onclick="qNext()" style="display:none">Next question →</button>
+      </div>
+    </div>`;
+}
+async function qChoose(letter){
+  if(qSession.answered) return;
+  qSession.answered=true;
+  const q=qSession.list[qSession.i];
+  const isCorrect=(letter===q.correct);
+  document.querySelectorAll('.qch').forEach(el=>el.classList.add('locked'));
+  document.getElementById('ch-'+q.correct).classList.add('correct');
+  if(!isCorrect){ document.getElementById('ch-'+letter).classList.add('wrong'); qSession.wrong++; }
+  else qSession.correct++;
+  document.getElementById('q-expl-slot').innerHTML=q.explanation?
+    `<div class="qexpl"><b>${isCorrect?'Correct.':'Not quite.'} Answer: ${q.correct}.</b> ${escapeHtml(q.explanation)}</div>`
+    : `<div class="qexpl"><b>${isCorrect?'Correct.':'Not quite.'} Answer: ${q.correct}.</b></div>`;
+  document.getElementById('q-next-btn').style.display='inline-block';
+  // save attempt
+  try{ await sb.from('question_attempts').insert({user_id:USER.id, question_id:q.id, chosen:letter, correct:isCorrect});
+    S.qattempts.unshift({question_id:q.id, chosen:letter, correct:isCorrect, attempted_at:new Date().toISOString()});
+    qRenderStats();
+  }catch(e){ setSync('err'); }
+}
+function qNext(){ qSession.i++; qSession.answered=false; qRender(); }
+function qSkip(){ qNext(); }
+
+let qAddOpen=false, qImpOpen=false;
+function toggleQAdd(){ qAddOpen=!qAddOpen; document.getElementById("qaddform").style.display=qAddOpen?"block":"none"; }
+function toggleQImport(){ qImpOpen=!qImpOpen; document.getElementById("qimportform").style.display=qImpOpen?"block":"none"; }
+async function qAdd(){
+  const g=id=>document.getElementById(id).value.trim();
+  const row={user_id:USER.id, book:g("qa-book"), topic:g("qa-topic")||null, reading_code:g("qa-reading")||null,
+    stem:g("qa-stem"), choice_a:g("qa-a"), choice_b:g("qa-b"), choice_c:g("qa-c"), choice_d:g("qa-d"),
+    correct:g("qa-correct"), explanation:g("qa-expl")||null, source:g("qa-source")||null};
+  if(!row.stem||!row.choice_a||!row.choice_b||!row.choice_c||!row.choice_d){ alert("Fill in stem and all four choices."); return; }
+  setSync('saving');
+  try{ const {data,error}=await sb.from('questions').insert(row).select().single();
+    if(error) throw error; S.questions.unshift(data); setSync('ok');
+    ["qa-topic","qa-reading","qa-stem","qa-a","qa-b","qa-c","qa-d","qa-expl","qa-source"].forEach(id=>document.getElementById(id).value="");
+    toggleQAdd(); qInit();
+  }catch(e){ setSync('err'); alert("Failed to save."); }
+}
+function qCsvLoadFile(ev){
+  const f=ev.target.files[0]; if(!f)return;
+  const r=new FileReader();
+  r.onload=e=>{ document.getElementById("qcsv-text").value=e.target.result; };
+  r.readAsText(f);
+}
+async function qCsvImport(){
+  const text=document.getElementById("qcsv-text").value.trim();
+  if(!text){ alert("Paste CSV content or upload a file first."); return; }
+  const stat=document.getElementById("qcsv-status");
+  const rows=parseCSV(text);
+  const first=rows[0].map(x=>x.trim().toLowerCase());
+  const hasHeader = first.includes('stem') || first[0]==='book';
+  const data=hasHeader? rows.slice(1) : rows;
+  const valid=[]; const skipped=[];
+  data.forEach((r,i)=>{
+    const [book,topic,reading_code,stem,a,b,c,d,correct,expl,source]=r.map(x=>(x||'').trim());
+    if(!book||!stem||!a||!b||!c||!d||!correct || !['b1','b2','b3','b4'].includes(book.toLowerCase()) || !['A','B','C','D'].includes(correct.toUpperCase())){
+      skipped.push(i+1+(hasHeader?1:0)); return;
+    }
+    valid.push({user_id:USER.id, book:book.toLowerCase(), topic:topic||null, reading_code:reading_code||null,
+      stem, choice_a:a, choice_b:b, choice_c:c, choice_d:d, correct:correct.toUpperCase(),
+      explanation:expl||null, source:source||null});
+  });
+  if(!valid.length){ stat.textContent="No valid rows found."; return; }
+  stat.textContent="Uploading "+valid.length+" questions…";
+  try{
+    for(let i=0;i<valid.length;i+=100){
+      const chunk=valid.slice(i,i+100);
+      const {error}=await sb.from('questions').insert(chunk); if(error) throw error;
+    }
+    stat.textContent="✓ Imported "+valid.length+(skipped.length?(" · skipped "+skipped.length):"")+".";
+    await loadAll();
+    setTimeout(()=>{ toggleQImport(); document.getElementById("qcsv-text").value=""; stat.textContent=""; qInit(); }, 1200);
+  }catch(e){ stat.textContent="⚠ "+(e.message||"Import failed"); }
+}
 
 // ---------- boot ----------
 boot();
